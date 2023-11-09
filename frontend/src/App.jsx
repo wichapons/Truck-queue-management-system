@@ -33,10 +33,11 @@ import AdminEditUserPage from "./pages/admin/AdminEditUserPage";
 import AdminProductsPage from "./pages/admin/AdminProductsPage";
 import AdminCreateProductPage from "./pages/admin/AdminCreateProductPage";
 import AdminEditProductPage from "./pages/admin/AdminEditProductPage";
-import AdminOrdersPage from "./pages/admin/AdminOrdersPage";
+import AdminQueuePage from "./pages/admin/AdminQueuePage";
 import AdminOrderDetailsPage from "./pages/admin/AdminOrderDetailsPage";
 import AdminChatsPage from "./pages/admin/AdminChatsPage";
 import AdminAnalyticsPage from "./pages/admin/AdminAnalyticsPage";
+import AdminCreateQueuePage from "./pages/admin/AdminCreateQueuePage";
 
 
 function App() {
@@ -64,7 +65,7 @@ function App() {
           <Route path="/register" element={<RegistrationPage />} />
           <Route path="*" element="Page not exists 404" />
 
-
+          
           {/* user protected routes */}
           <Route element={<ProtectedRoutesComponents />}>
             <Route path="/user" element={<UserProfilePage />} />
@@ -80,8 +81,9 @@ function App() {
           <Route path="/admin/edit-user/:id" element={<AdminEditUserPage />} />
           <Route path="/admin/products" element={<AdminProductsPage />} />
           <Route path="/admin/create-new-product" element={<AdminCreateProductPage />}/>
+          <Route path="/admin/create-new-queue" element={<AdminCreateQueuePage />}/>
           <Route path="/admin/edit-product/:id" element={<AdminEditProductPage />}/>
-          <Route path="/admin/orders" element={<AdminOrdersPage />} />
+          <Route path="/admin/orders" element={<AdminQueuePage />} />
           <Route path="/admin/order-details/:id" element={<AdminOrderDetailsPage />}/>
           <Route path="/admin/chats" element={<AdminChatsPage />} />
           <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
