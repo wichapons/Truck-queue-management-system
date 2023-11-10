@@ -5,23 +5,25 @@ dotenv.config();
 //Express.js
 const express = require("express");
 const app = express();
+//Cookie
+const cookieParser = require("cookie-parser");
 
 //Database
-//const connectDB = require("./config/db");
+const connectDB = require("./config/db");
 //Database connection
-//connectDB();
+connectDB();
 
 //Routes
 const apiRoutes = require("./routes/apiRoutes");
 
-/*
+
 //error handler
 const errorHandler = require("./middlewares/errorHandler")
 
 app.use(errorHandler)
 app.use(cookieParser());
 app.use(express.json());
-*/
+
 
 app.use("/api", apiRoutes);
 
