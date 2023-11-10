@@ -10,7 +10,7 @@ const AdminLinksComponent = () => {
     <Navbar bg="light" variant="light">
       <Nav className="flex-column">
         <LinkContainer to="/admin/orders">
-          <Nav.Link>Truck Status</Nav.Link>
+          <Nav.Link>Truck Queue Status</Nav.Link>
         </LinkContainer>
         <LinkContainer to="/admin/products">
           <Nav.Link>Products</Nav.Link>
