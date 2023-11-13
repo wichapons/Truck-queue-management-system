@@ -11,34 +11,57 @@ const url_line_notification = "https://notify-api.line.me/api/notify";
 const line_token = process.env.LINE_TOKEN;
 
 const sendLineNotification = async (req, res, next) => {
-  let queue_id = req.params.id;
-  let current_queue = "A001_test";
-  let json_data = {
-    message: `Hello world, Your current queue is ${queue_id}`,
-  };
+  try {
+    let queue_id = req.params.id;
+    //get data from database
+    const queueData = await Queue.findOne({ _id: new ObjectId(queue_id) });
 
-  let response = await axios({
-    method: "POST",
-    url: url_line_notification,
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-      Authorization: "Bearer " + line_token,
-    },
-    data: qs.stringify(json_data),
-  })
-    .then((res) => {
-      if (res.data.status == 200) {
-        return "message has been send successfully";
-      } else {
-        return "failed to send message " + res.data;
-      }
+    //prepare data to send to Line API
+    let json_data = {
+      message: `เรียน ผู้ขนส่งรหัส ${queueData.supplierCode} คิวที่ ${queueData.queueNumber}, ขณะนี้ถึงคิวท่านแล้ว รบกวนมาที่ประตู ${queueData.dockingDoorNumber} ค่ะ`,
+    };
+
+    let response = await axios({
+      method: "POST",
+      url: url_line_notification,
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        Authorization: "Bearer " + line_token,
+      },
+      data: qs.stringify(json_data),
     })
-    .catch(function (error) {
-      console.log(error);
-      return "something wrong while fetching data to Line API";
-    });
-  console.log(response);
-  res.status(200).send(response);
+      .then(async (res) => {
+        if (res.data.status == 200) {
+          // decode token to get user id
+          const token = req.cookies.access_token;
+          const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+          req.user = decoded;
+
+          //UPDATE QUEUE DATA queueCalledBy, queueCalledTime
+          await Queue.findOneAndUpdate(
+            { _id: new ObjectId(queue_id) },
+            {
+              queueCalledBy: req.user.name,
+              //GMT+7
+              queueCalledTime: new Date().toLocaleString("en-US", {
+                timeZone: "Asia/Bangkok",
+              }),
+            }
+          );
+          return "message has been send successfully";
+        } else {
+          return "failed to send message " + res.data;
+        }
+      })
+      .catch(function (error) {
+        console.log(error);
+        return "something wrong while fetching data to Line API";
+      });
+    console.log(response);
+    res.status(200).send(response);
+  } catch (err) {
+    next(err);
+  }
 };
 
 const getAllQueue = async (req, res, next) => {
@@ -91,7 +114,11 @@ const closeQueue = async (req, res, next) => {
     //update queue checkin status to true and add user id
     const queue = await Queue.findOneAndUpdate(
       { _id: new ObjectId(queueID) },
-      { isCheckin: true, queueCloseByUserID: req.user._id, queueCloseByUserName:req.user.name }
+      {
+        isCheckin: true,
+        queueCloseByUserID: req.user._id,
+        queueCloseByUserName: req.user.name,
+      }
     );
 
     res.status(200).json({
@@ -114,9 +141,8 @@ const updateDockingNumber = async (req, res, next) => {
       { dockingDoorNumber: dockingNumber }
     );
     res.status(200).json({
-      message: "Queue closed",
-      queueId: queue._id,
-      supcode: queue.supplierCode,
+      message: "Docking number updated successfully",
+      dockingDoorNumber: dockingNumber,
     });
   } catch (err) {
     next(err);
