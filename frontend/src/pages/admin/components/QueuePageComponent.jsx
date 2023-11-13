@@ -4,23 +4,31 @@ import AdminLinksComponent from "../../../components/admin/AdminLinksComponent";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-const QueuePageComponent = ({ getOrders }) => {
-  const [orders, setOrders] = useState([]);
+const QueuePageComponent = ({ getQueue }) => {
+
+  const [queues, setQueues] = useState([]);
+  const [refresh, setRefresh] = useState(false);
+
   useEffect(() => {
-    getOrders()
-      .then((orders) => setOrders(orders))
+    getQueue()
+      .then((queues) => setQueues(queues))
       .catch((er) =>
         console.log(
           er.response.data.message ? er.response.data.message : er.response.data
         )
       );
-  }, []);
+  }, [refresh]);
 
-  const sendLineNotification = async () => {
-    const response = await axios.post(`http://localhost:8796/api/send-message`);
-    console.log(`test111 ${response}`);
-    return response.data
-  }
+
+
+  const sendLineNotification = async (queueID) => {
+    const response = await axios.post(
+      `/api/queue/send-message/${queueID}`
+    );
+    setRefresh(!refresh);
+    return response.data;
+  };
+
 
   return (
     <Row className="m-5">
@@ -28,18 +36,17 @@ const QueuePageComponent = ({ getOrders }) => {
         <AdminLinksComponent />
       </Col>
       <Col md={10}>
-        <h1>Truck Queue Status</h1>
+        <h2>Truck Queue Status</h2>
         <LinkContainer to="/admin/create-new-queue">
-            <Button variant="warning" >Add Queue</Button>
-          </LinkContainer>
+          <Button variant="warning">Add Queue</Button>
+        </LinkContainer>
         <Table striped bordered hover responsive>
           <thead>
             <tr>
               <th>ประตู</th>
-              <th>Timestamp</th>
+              <th>Create Time</th>
               <th>ลำดับคิว</th>
               <th>Supplier Code</th>
-              <th>Supplier Name</th>
               <th>ประเภทสินค้า</th>
               <th>เวลาที่เรียกคิว</th>
               <th>เรียก Vendor เข้าประตู</th>
@@ -47,47 +54,59 @@ const QueuePageComponent = ({ getOrders }) => {
             </tr>
           </thead>
           <tbody>
-            {orders.map((order, idx) => (
+            {queues.map((queue, idx) => (
               <tr key={idx}>
-
                 <td>{idx + 1}</td>
-  
+
                 <td>
-                {order.createdAt ? order.createdAt.substring(0, 16) : 'N/A'}
+                  {queue.createdAt
+                    ? new Date(queue.createdAt).toLocaleString("en-GB", {
+                        timeZone: "Asia/Bangkok",
+                        hour12: false,
+                        year: "numeric",
+                        month: "short",
+                        day: "2-digit",
+                        
+                      })
+                    : "N/A"}
                 </td>
 
                 <td>{idx + 1}</td>
-
-                <td>{15263}</td>
-                <td>L.M.E.</td>
-
-
-                <td>GIC Consign</td>
-                <td>{order.createdAt ? order.createdAt.substring(0, 16) : 'N/A'}</td>
+                <td>{queue.supplierCode}</td>
+                <td>{queue.goodsType}</td>
+                <td>
+                  {queue.queueCalledTime
+                    ? new Date(queue.queueCalledTime).toLocaleString("en-GB", {
+                        timeZone: "Asia/Bangkok",
+                        hour12: false,
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      }) + " น."
+                    : "N/A"}
+                </td>
 
                 <td style={{ textAlign: "center" }}>
                   <Button
                     variant="primary"
                     className="btn-sm"
-                    style={{ width: "30%"}}
-                    onClick={()=>sendLineNotification()}
-                    disabled= {true}
+                    style={{ width: "30%" }}
+                    onClick={() => sendLineNotification(queue._id)}
+                    disabled={false}
                   >
                     <i className="bi bi-send"></i>
                   </Button>
                 </td>
 
-                <td style={{textAlign:"center"}}>
-                <Button
+                <td style={{ textAlign: "center" }}>
+                  <Button
                     variant="success"
                     className="btn-sm"
-                    style={{ width: "80%"}}
-                    onClick={()=>closeJob()}
-                    disabled= {true}
+                    style={{ width: "60%" }}
+                    onClick={() => closeJob()}
+                    disabled={false}
                   >
                     <i className="bi bi-check-circle"></i>
                   </Button>
-                  
                 </td>
               </tr>
             ))}

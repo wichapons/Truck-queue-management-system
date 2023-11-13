@@ -1,13 +1,13 @@
 import QueuePageComponent from "./components/QueuePageComponent";
 import axios from "axios";
 
-const getOrders = async() => {
-    const response = await axios.get("/api/orders/admin");
+const getQueue = async() => {
+    const response = await axios.get("/api/queue");
     return response.data
 }
 
 const AdminQueuePage = () => {
-  return <QueuePageComponent getOrders={getOrders} />
+  return <QueuePageComponent getQueue={getQueue} />
 };
 
 export default AdminQueuePage;
