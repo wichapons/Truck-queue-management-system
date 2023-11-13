@@ -15,7 +15,9 @@ router.put("/paid/:id", orderController.updateOrderToPaid);
 //router.use(verifyAuthToken.verifyIsAdmin)
 router.post("/send-message/:id", queueController.sendLineNotification);
 //router.put("/delivered/:id", orderController.updateOrderToDelivered);
-//router.get("/admin", orderController.getAllOrdersAdmin);
+router.get("/", queueController.getAllQueue);
+router.post("/create", queueController.createNewQueue);
+router.put("/close/:id", queueController.closeQueue);
 //router.get("/analysis/:date", orderController.getOrderForAnalysis);
 
 module.exports = router

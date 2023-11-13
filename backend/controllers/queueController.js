@@ -3,14 +3,15 @@ const User = require("../models/UserModel");
 const ObjectId = require("mongodb").ObjectId;
 const dotenv = require("dotenv");
 const axios = require("axios");
-const qs = require('qs');
+const qs = require("qs");
+const jwt = require("jsonwebtoken");
 
 dotenv.config(); //import dotenv module
 const url_line_notification = "https://notify-api.line.me/api/notify";
 const line_token = process.env.LINE_TOKEN;
 
 const sendLineNotification = async (req, res, next) => {
-let queue_id = req.params.id;
+  let queue_id = req.params.id;
   let current_queue = "A001_test";
   let json_data = {
     message: `Hello world, Your current queue is ${queue_id}`,
@@ -40,6 +41,92 @@ let queue_id = req.params.id;
   res.status(200).send(response);
 };
 
+const getAllQueue = async (req, res, next) => {
+  let queueData = await Queue.find();
+  res.status(200).json(queueData);
+};
+
+const createNewQueue = async (req, res, next) => {
+  try {
+    const queue = new Queue();
+    const { supcode, goodstype, queuenumber } = req.body;
+    queue.supplierCode = supcode;
+    queue.goodsType = goodstype;
+    queue.queueNumber = queuenumber;
+
+    //check if supplierCode and queueNumber is not empty
+    if (queue.supplierCode == "" || queue.queueNumber == "") {
+      res.status(400).json({
+        message: "supplier code and queue number must not be empty",
+      });
+      return;
+    }
+
+    //check if supplierCode and queueNumber is number
+    if (isNaN(queue.supplierCode) || isNaN(queue.queueNumber)) {
+      res.status(400).json({
+        message: "supplierCode and queueNumber must be number",
+      });
+      return;
+    }
+
+    await queue.save(); // save to database
+    res.json({
+      message: "New queue created",
+      queueId: queue._id,
+      supcode: queue.supplierCode,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const closeQueue = async (req, res, next) => {
+  try {
+    const queueID = req.params.id;
+    // decode token to get user id
+    const token = req.cookies.access_token;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    req.user = decoded;
+    //update queue checkin status to true and add user id
+    const queue = await Queue.findOneAndUpdate(
+      { _id: new ObjectId(queueID) },
+      { isCheckin: true, queueCloseByUserID: req.user._id, queueCloseByUserName:req.user.name }
+    );
+
+    res.status(200).json({
+      message: "Queue closed",
+      queueId: queue._id,
+      supcode: queue.supplierCode,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const updateDockingNumber = async (req, res, next) => {
+  try {
+    const queueID = req.params.id;
+    const { dockingNumber } = req.body;
+    //update queue checkin status to true
+    const queue = await Queue.findOneAndUpdate(
+      { _id: new ObjectId(queueID) },
+      { dockingDoorNumber: dockingNumber }
+    );
+    res.status(200).json({
+      message: "Queue closed",
+      queueId: queue._id,
+      supcode: queue.supplierCode,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
 module.exports = {
-    sendLineNotification: sendLineNotification,
+  sendLineNotification: sendLineNotification,
+  getAllQueue: getAllQueue,
+  createNewQueue: createNewQueue,
+  closeQueue: closeQueue,
+  updateDockingNumber: updateDockingNumber,
 };
