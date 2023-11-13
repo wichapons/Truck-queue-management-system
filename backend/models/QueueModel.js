@@ -3,10 +3,11 @@ const mongoose = require("mongoose")
 const queueSchema = mongoose.Schema({
     queueCalledBy: {
         type: String,
-        required: true,
+        default: null
     },
     dockingDoorNumber: {
-        type: Number
+        type: Number,
+        default: null
     },
     supplierCode:{
         type: Number,
@@ -17,18 +18,26 @@ const queueSchema = mongoose.Schema({
         required: true
     },
     queueNumber: {
-        type: String,
+        type: Number,
         required: true,
     },
     queueCalledTime: {
         type: Date,
+        default: null
     },
     isCheckin: {
         type: Boolean,
         required: true,
         default: false
     },
-
+    queueCloseByUserID: {
+        type: String,
+        default: null
+    },
+    queueCloseByUserName: {
+        type: String,
+        default: null
+    },
 }, {
     timestamps: true,
 })
