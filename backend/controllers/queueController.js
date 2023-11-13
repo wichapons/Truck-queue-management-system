@@ -43,9 +43,7 @@ const sendLineNotification = async (req, res, next) => {
             {
               queueCalledBy: req.user.name,
               //GMT+7
-              queueCalledTime: new Date().toLocaleString("en-US", {
-                timeZone: "Asia/Bangkok",
-              }),
+              queueCalledTime: new Date(),
             }
           );
           return "message has been send successfully";
