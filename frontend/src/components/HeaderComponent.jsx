@@ -12,7 +12,6 @@ import { LinkContainer } from "react-router-bootstrap";
 import { logout } from "../redux/actions/userActions";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect,useState } from "react";
-import { getCategories } from "../redux/actions/categoryActions";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import { setChatRooms,setSocket,setMessageReceived,removeChatRoom } from "../redux/actions/chatActions";
@@ -22,9 +21,6 @@ const HeaderComponent = () => {
   const dispatch = useDispatch();
   //get userInfo from current redux state
   const { userInfo } = useSelector((state) => state.userRegisterLogin);
-  const itemsCount = useSelector((state) => state.cart.itemsCount);
-  //get categories data from redux state
-  const { categories } = useSelector((state) => state.getCategories);
   //the category that will be display in the navbar when user select category from the list
   const [searchCategoryToggle, setSearchCategoryToggle] = useState("All");
   //for sending to backend
@@ -35,11 +31,6 @@ const HeaderComponent = () => {
   const navigate = useNavigate();
 
 
-  //fetch category data via redux
-  useEffect(() => {
-    // dispatch the action to get categories
-    dispatch(getCategories());
-  }, [dispatch]);
 
   //send search query to backend when user press enter or click search
   const submitHandler = (e) => {
@@ -93,19 +84,7 @@ useEffect(() => {
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="me-auto">
             <InputGroup>
-              <DropdownButton id="dropdown-basic-button" title={searchCategoryToggle}>
-                <Dropdown.Item onClick={() => setSearchCategoryToggle("All")}>
-                  All
-                </Dropdown.Item>
-                {categories.map((category, id) => (
-                  <Dropdown.Item
-                    key={id}
-                    onClick={() => setSearchCategoryToggle(category.name)}
-                  >
-                    {category.name}
-                  </Dropdown.Item>
-                ))}
-              </DropdownButton>
+
               <Form.Control
                 onKeyUp={submitHandler} onChange={(e)=>{
                   setSearchQuery(e.target.value)
@@ -154,13 +133,6 @@ useEffect(() => {
                 <Nav.Link href="/register">Register </Nav.Link>
               </>
             )}
-            <Nav.Link href="/cart">
-              <Badge pill bg="danger">
-                {itemsCount === 0 ? "" : itemsCount}
-              </Badge>
-              <i className="bi bi-cart"></i>
-              Cart
-            </Nav.Link>
           </Nav>
         </Navbar.Collapse>
       </Container>
