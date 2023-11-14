@@ -1,85 +1,100 @@
-import { Row, Col, Container, Form, Button, CloseButton, Table, Alert} from "react-bootstrap";
+import { Row, Col, Container, Form, Button } from "react-bootstrap";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
 import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  changeCategory,
-  setValuesForAttrFromDbSelectForm,
-  setAttributesTableWrapper,
-} from "./utils/utils";
-import { Fragment } from "react";
+import axios from "axios";
+import Alert from "react-bootstrap/Alert";
 
-const AdminCreateProductPageComponent = ({
-  createProductApiRequest,
-  uploadImagesApiRequest,
-  uploadImagesCloudinaryApiRequest,
-  categories,
-  reduxDispatch,
-  newCategory,
-  deleteCategory,
-  saveAttributeToCatDoc,
-}) => {
+const AdminCreateProductPageComponent = () => {
   const [validated, setValidated] = useState(false);
-  const [attributesTable, setAttributesTable] = useState([]);
-  const [attributesFromDb, setAttributesFromDb] = useState([]);
-  const [images, setImages] = useState(false);
-  const [isCreating, setIsCreating] = useState("");
   const [createProductResponseState, setCreateProductResponseState] = useState({
     message: "",
     error: "",
+    queueId:"",
+    supcode:"",
   });
 
-  const [categoryChoosen, setCategoryChoosen] = useState("Choose category");
-  const [trigger, setTrigger] = useState(false);
-  //create ref for attr key and value
-  const attrVal = useRef(null);
-  const attrKey = useRef(null);
-
-  const navigate = useNavigate();
+  const createQueueApiRequest = async (formInputs) => {
+    const { data } = await axios.post(`/api/queue/create`, {
+      ...formInputs,
+    });
+    return data;
+  };
 
   //handle product create button
-  const handleSubmit = (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
     const form = event.currentTarget;
     const element = form.elements;
+    //check input validity
+    if (form.checkValidity() === false) {
+      event.stopPropagation();
+      return;
+    }
+    setValidated(true);
+
     // Extract form input values
     const formInputs = {
-      name: element.name.value,
-      description: element.description.value,
-      count: element.count.value,
-      price: element.price.value,
-      category: element.category.value,
-      attributesTable: attributesTable,
+      supcode: element.supcode.value,
+      goodstype: element.goodstype.value,
+      queuenumber: element.queuenumber.value,
     };
-
-    setValidated(true);
+    try {
+      await createQueueApiRequest(formInputs).then((response) => {
+        if (response.message) {
+          setCreateProductResponseState({
+            message: response.message,
+            error: "",
+            queueId: response.queueId,
+            supcode: response.supcode,
+          });
+          //clear form
+          form.reset();
+          setValidated(true);
+        } else {
+          setCreateProductResponseState({
+            message: response.message,
+            error: response,
+          });
+        }
+      });
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   //prevent submit form when user press enter
   const checkKeyDown = (e) => {
     if (e.keyCode === 13) {
-      e.preventDefault()
-    };
+      e.preventDefault();
+    }
   };
 
   return (
     <Container>
       <Row className="justify-content-md-center mt-5">
         <Col md={1}>
-          <Link to="/admin/orders" className="btn btn-info my-3" >
+          <Link to="/admin/orders" className="btn btn-info my-3">
             Go Back
           </Link>
         </Col>
 
         <Col md={6}>
-          <h1 style={{marginTop:"1.5%"}}>Create New Queue</h1>
-          <Form noValidate validated={validated} onSubmit={handleSubmit} onKeyDown={(e)=>checkKeyDown(e)}>
+          <h3 style={{ marginTop: "2.5%" }}>Create New Queue</h3>
+          <Form
+            noValidate
+            validated={validated}
+            onSubmit={handleSubmit}
+            onKeyDown={(e) => checkKeyDown(e)}
+          >
             <Form.Group className="mb-3" controlId="formBasicName">
               <Form.Label>Supplier Code</Form.Label>
-              <Form.Control name="supcode" required type="number" inputMode="numeric" />
+              <Form.Control
+                name="supcode"
+                required
+                type="number"
+                inputMode="numeric"
+              />
             </Form.Group>
-
 
             <Form.Group className="mb-3" controlId="formBasicCount">
               <Form.Label>ประเภทสินค้า</Form.Label>
@@ -93,7 +108,16 @@ const AdminCreateProductPageComponent = ({
             <Button variant="primary" type="submit">
               Create
             </Button>
-            {createProductResponseState.error ?? ""}
+
+            {createProductResponseState.message ? (
+              <Alert variant="success" className="mt-3" >
+                {createProductResponseState.message}
+                <br/>
+                Vendor Code: {createProductResponseState.supcode}
+              </Alert>
+            ) : (
+              ""
+            )}
           </Form>
         </Col>
       </Row>
