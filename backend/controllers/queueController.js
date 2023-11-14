@@ -18,7 +18,7 @@ const sendLineNotification = async (req, res, next) => {
 
     //prepare data to send to Line API
     let json_data = {
-      message: `เรียน ผู้ขนส่งรหัส ${queueData.supplierCode} คิวที่ ${queueData.queueNumber}, ขณะนี้ถึงคิวท่านแล้ว รบกวนมาที่ประตู ${queueData.dockingDoorNumber} ค่ะ`,
+      message: `เชิญคิวที่ ${queueData.queueNumber} Supplier ${queueData.supplierCode} ${queueData.supplierName} คิวที่ ${queueData.queueNumber}, รบกวนลงของที่ประตู ${queueData.dockingDoorNumber} ค่ะ`,
     };
 
     let response = await axios({
@@ -37,13 +37,15 @@ const sendLineNotification = async (req, res, next) => {
           const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
           req.user = decoded;
 
-          //UPDATE QUEUE DATA queueCalledBy, queueCalledTime
+          //UPDATE QUEUE DATA queueCalledBy, queueCalledTime and increase queueCalledCount by 1
+
           await Queue.findOneAndUpdate(
             { _id: new ObjectId(queue_id) },
             {
               queueCalledBy: req.user.name,
               //GMT+7
               queueCalledTime: new Date(),
+              $inc: { queueCalledCount: 1 },
             }
           );
           return "message has been send successfully";
@@ -69,11 +71,19 @@ const getAllQueue = async (req, res, next) => {
 
 const createNewQueue = async (req, res, next) => {
   try {
+    // decode token to get user id
+    const token = req.cookies.access_token;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    req.user = decoded;
+    
+    //create new queue
     const queue = new Queue();
-    const { supcode, goodstype, queuenumber } = req.body;
+    const { supplierName,supcode, goodstype, queuenumber } = req.body;
+    queue.supplierName = supplierName;
     queue.supplierCode = supcode;
     queue.goodsType = goodstype;
     queue.queueNumber = queuenumber;
+    queue.queueCreatedBy = req.user.name;
 
     //check if supplierCode and queueNumber is not empty
     if (queue.supplierCode == "" || queue.queueNumber == "") {
@@ -96,6 +106,9 @@ const createNewQueue = async (req, res, next) => {
       message: "New queue created",
       queueId: queue._id,
       supcode: queue.supplierCode,
+      supName: queue.supplierName,
+      goodsType: queue.goodsType,
+      queueNumber: queue.queueNumber,
     });
   } catch (err) {
     next(err);
