@@ -33,6 +33,10 @@ const queueSchema = mongoose.Schema({
         type: Date,
         default: null
     },
+    queueCalledCount: {
+        type: Number,
+        default: 0
+    },
     isCheckin: {
         type: Boolean,
         required: true,
