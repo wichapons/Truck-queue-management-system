@@ -18,7 +18,7 @@ const QueuePageComponent = ({ getQueue }) => {
       );
   }, [refresh]);
 
-  const sendLineNotification = async (queueID,dockingDoorNumber) => {
+  const sendLineNotification = async (queueID, dockingDoorNumber) => {
     console.log(dockingDoorNumber);
     if (!dockingDoorNumber) {
       alert("กรุณากรอกเลขประตูที่เรียกคิว ก่อนที่จะเรียก Vendor เข้าประตูค่ะ");
@@ -45,14 +45,16 @@ const QueuePageComponent = ({ getQueue }) => {
   };
 
   const assignDockingDoor = async (queueID) => {
-    
     //show alert with input field
     const dockingDoorNumber = prompt("กรุณากรอกเลขประตูที่เรียกคิว");
     //include dockingDoorNumber in request body
-    const response = await axios.put(`/api/queue/update-docknumber/${queueID}`, {dockingNumber: dockingDoorNumber});
+    const response = await axios.put(
+      `/api/queue/update-docknumber/${queueID}`,
+      { dockingNumber: dockingDoorNumber }
+    );
     setRefresh(!refresh);
     return response.data;
-  }
+  };
 
   return (
     <Row className="m-5">
@@ -65,27 +67,42 @@ const QueuePageComponent = ({ getQueue }) => {
           <Button variant="warning">Add Queue</Button>
         </LinkContainer>
         <Table striped bordered hover responsive>
-          <thead>
-            <tr>
+          <thead >
+            <tr style={{textAlign: "center"}}>
+              <th >คิว</th>
+              <th>Sup Code</th>
+              <th>SupName</th>
+              <th>Product</th>
+              <th>Assign Dock</th>
               <th>ประตู</th>
-              <th>Create Time</th>
-              <th>ลำดับคิว</th>
-              <th>Supplier Code</th>
-              <th>ประเภทสินค้า</th>
-              <th>เวลาที่เรียกคิว</th>
-              <th>เรียก Vendor เข้าประตู</th>
-              <th>Vendor Checkin</th>
+              <th>เรียกคิว</th>
+              <th>เรียกคิวครั้งที่</th>
+              <th>เวลา</th>
+              <th>Check in</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody style={{textAlign: "center" }}>
             {queues.map((queue, idx) => {
               return !queue.isCheckin ? (
                 <tr key={idx}>
+                  <td>{queue.queueNumber}</td>
+                  <td>{queue.supplierCode}</td>
+                  <td>{queue.supplierName ? queue.supplierName : "N/A"}</td>
+                  <td>{queue.goodsType}</td>
+                  <td>
+                    <Button
+                      className="btn-sm"
+                      variant="danger"
+                      onClick={() => assignDockingDoor(queue._id)}
+                    >
+                      <i className="bi bi-pencil-square"></i>
+                    </Button>
+                  </td>
                   <td>
                     {queue.dockingDoorNumber ? queue.dockingDoorNumber : "N/A"}
                   </td>
 
-                  <td>
+                  {/* <td>
                     {queue.createdAt
                       ? new Date(queue.createdAt).toLocaleString("en-GB", {
                           timeZone: "Asia/Bangkok",
@@ -95,11 +112,24 @@ const QueuePageComponent = ({ getQueue }) => {
                           day: "2-digit",
                         })
                       : "N/A"}
+                  </td> */}
+
+                  <td>
+                    <Button
+                      variant="primary"
+                      className="btn-sm"
+                      //style={{ width: "30%" }}
+                      onClick={() =>
+                        sendLineNotification(queue._id, queue.dockingDoorNumber)
+                      }
+                      disabled={false}
+                    >
+                      <i className="bi bi-send"></i>
+                    </Button>
                   </td>
 
-                  <td>{idx + 1}</td>
-                  <td>{queue.supplierCode}</td>
-                  <td>{queue.goodsType}</td>
+                  <td>{queue.queueCalledCount}</td>
+
                   <td>
                     {queue.queueCalledTime
                       ? new Date(queue.queueCalledTime).toLocaleString(
@@ -114,33 +144,23 @@ const QueuePageComponent = ({ getQueue }) => {
                       : "N/A"}
                   </td>
 
-                  <td style={{ textAlign: "center" }}>
-                    <Button className="btn-sm" variant="danger" onClick={() => assignDockingDoor(queue._id)}>
-                      <i className="bi bi-pencil-square"></i>
-                    </Button>
-                    {" / "}
-                    <Button
-                      variant="primary"
-                      className="btn-sm"
-                      //style={{ width: "30%" }}
-                      onClick={() => sendLineNotification(queue._id,queue.dockingDoorNumber)}
-                      disabled={false}
-                    >
-                      <i className="bi bi-send"></i>
-                    </Button>
-                  </td>
+                  
 
-                  <td style={{ textAlign: "center" }}>
+                  <td >
                     <Button
                       variant="success"
                       className="btn-sm"
-                      style={{ width: "60%" }}
-                      onClick={() => closeQueue(queue._id,queue.dockingDoorNumber)}
+                      
+                      onClick={() =>
+                        closeQueue(queue._id, queue.dockingDoorNumber)
+                      }
                       disabled={false}
                     >
                       <i className="bi bi-check-circle"></i>
                     </Button>
                   </td>
+
+                  
                 </tr>
               ) : (
                 ""
