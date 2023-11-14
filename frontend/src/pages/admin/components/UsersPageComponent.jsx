@@ -46,6 +46,7 @@ return (
             <th>Last Name</th>
             <th>Email</th>
             <th>Is Admin</th>
+            <th>Is GR Admin</th>
             <th>Edit/Delete</th>
           </tr>
         </thead>
@@ -59,6 +60,9 @@ return (
                 <td>{user.email}</td>
                 <td>
                   {user.isAdmin ? <i className="bi bi-check-lg text-success"></i> : <i className="bi bi-x-lg text-danger"></i>}
+                </td>
+                <td>
+                  {user.isGRAdmin ? <i className="bi bi-check-lg text-success"></i> : <i className="bi bi-x-lg text-danger"></i>}
                 </td>
                 <td>
                   <LinkContainer to={`/admin/edit-user/${user._id}`}>
