@@ -35,6 +35,7 @@ const AdminCreateProductPageComponent = () => {
     // Extract form input values
     const formInputs = {
       supcode: element.supcode.value,
+      supplierName: element.supName.value,
       goodstype: element.goodstype.value,
       queuenumber: element.queuenumber.value,
     };
@@ -46,6 +47,9 @@ const AdminCreateProductPageComponent = () => {
             error: "",
             queueId: response.queueId,
             supcode: response.supcode,
+            supName: response.supName,
+            goodsType: response.goodsType,
+            queueNumber: response.queueNumber,
           });
           //clear form
           form.reset();
@@ -96,6 +100,14 @@ const AdminCreateProductPageComponent = () => {
               />
             </Form.Group>
 
+            <Form.Group className="mb-3" controlId="formBasicName">
+              <Form.Label>Supplier Name</Form.Label>
+              <Form.Control
+                name="supName"
+                required
+              />
+            </Form.Group>
+
             <Form.Group className="mb-3" controlId="formBasicCount">
               <Form.Label>ประเภทสินค้า</Form.Label>
               <Form.Control name="goodstype" required type="text" />
@@ -113,7 +125,13 @@ const AdminCreateProductPageComponent = () => {
               <Alert variant="success" className="mt-3" >
                 {createProductResponseState.message}
                 <br/>
+                Product Type: {createProductResponseState.goodsType}
+                <br/>
                 Vendor Code: {createProductResponseState.supcode}
+                <br/>
+                Vendor Name: {createProductResponseState.supName}
+                <br/>
+                Queue Number: {createProductResponseState.queueNumber}
               </Alert>
             ) : (
               ""
