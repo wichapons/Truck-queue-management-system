@@ -8,7 +8,7 @@ const FooterComponent = () => {
       <Container fluid>
         <Row>
           <Col className="bg-dark text-white text-center py-3">
-            Copyright &copy; 2023 Topazio Shop
+            Copyright &copy; 2023 Wichapon V.
           </Col>
         </Row>
       </Container>

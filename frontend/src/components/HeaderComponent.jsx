@@ -1,10 +1,7 @@
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
-import Badge from "react-bootstrap/Badge";
 import Form from "react-bootstrap/Form";
-import Dropdown from "react-bootstrap/Dropdown";
-import DropdownButton from "react-bootstrap/DropdownButton";
 import Button from "react-bootstrap/Button";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import { InputGroup } from "react-bootstrap";
@@ -78,12 +75,12 @@ useEffect(() => {
       <Container>
         {/* use LinkContainer for render the specific page without reloading browser */}
         <LinkContainer to="/">
-          <Navbar.Brand href="/">Topazio Shop</Navbar.Brand>
+          <Navbar.Brand href="/"><i class="bi bi-bus-front-fill"></i>  Truck Queue Management System </Navbar.Brand>
         </LinkContainer>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">
           <Nav className="me-auto">
-            <InputGroup>
+            {/* <InputGroup>
 
               <Form.Control
                 onKeyUp={submitHandler} onChange={(e)=>{
@@ -96,10 +93,10 @@ useEffect(() => {
               <Button onClick={submitHandler} variant="warning">
                 <i className="bi bi-search"></i>
               </Button>
-            </InputGroup>
+            </InputGroup> */}
           </Nav>
 
-          <Nav className="me-auto">
+          <Nav className="me-auto"> 
             {userInfo.name && userInfo.isAdmin === false ? (
               <>
                 <NavDropdown
@@ -122,7 +119,7 @@ useEffect(() => {
             ) : userInfo.name && userInfo.isAdmin === true ? (
               <LinkContainer to="/admin/orders">
                 <Nav.Link>
-                  Admin
+                <i class="bi bi-person-badge-fill"></i> {userInfo.name}
                   {/* red dot for inform admin that there are chat msg from cust.  */}
                   {messageReceived && <span className="position-absolute top-1 start-10 translate-middle p-2 bg-danger border border-light rounded-circle"></span>}
                 </Nav.Link>
