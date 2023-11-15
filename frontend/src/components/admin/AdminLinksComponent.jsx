@@ -12,19 +12,19 @@ const AdminLinksComponent = () => {
         <LinkContainer to="/admin/orders">
           <Nav.Link>Truck Queue Status</Nav.Link>
         </LinkContainer>
-        <LinkContainer to="/admin/products">
+        {/* <LinkContainer to="/admin/products">
           <Nav.Link>Products</Nav.Link>
-        </LinkContainer>
+        </LinkContainer> */}
         <LinkContainer to="/admin/users">
           <Nav.Link>Users</Nav.Link>
-        </LinkContainer>
+        {/* </LinkContainer>
         <LinkContainer to="/admin/chats">
           <Nav.Link>Chats</Nav.Link>
         </LinkContainer>
         <LinkContainer to="/admin/analytics">
-          <Nav.Link>Analytics</Nav.Link>
+          <Nav.Link>Analytics</Nav.Link> */}
         </LinkContainer>
-        <Nav.Link onClick={() => dispatch(logout())}>Logout</Nav.Link>
+        <Nav.Link onClick={() => dispatch(logout())}>  Logout </Nav.Link>
       </Nav>
     </Navbar>
   );
