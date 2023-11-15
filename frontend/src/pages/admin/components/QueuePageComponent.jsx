@@ -70,13 +70,13 @@ const QueuePageComponent = ({ getQueue }) => {
           <thead >
             <tr style={{textAlign: "center"}}>
               <th >คิว</th>
-              <th>Sup Code</th>
-              <th>SupName</th>
+              <th>Supplier ID</th>
+              <th>Supplier Name</th>
               <th>Product</th>
               <th>Assign Dock</th>
               <th>ประตู</th>
               <th>เรียกคิว</th>
-              <th>เรียกคิวครั้งที่</th>
+              <th>ครั้งที่</th>
               <th>เวลา</th>
               <th>Check in</th>
             </tr>
