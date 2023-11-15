@@ -28,7 +28,6 @@ import AdminProductsPage from "./pages/admin/AdminProductsPage";
 import AdminCreateProductPage from "./pages/admin/AdminCreateProductPage";
 import AdminEditProductPage from "./pages/admin/AdminEditProductPage";
 import AdminQueuePage from "./pages/admin/AdminQueuePage";
-import AdminOrderDetailsPage from "./pages/admin/AdminOrderDetailsPage";
 import AdminChatsPage from "./pages/admin/AdminChatsPage";
 import AdminAnalyticsPage from "./pages/admin/AdminAnalyticsPage";
 import AdminCreateQueuePage from "./pages/admin/AdminCreateQueuePage";
@@ -63,7 +62,6 @@ function App() {
           <Route path="/admin/create-new-queue" element={<AdminCreateQueuePage />}/>
           <Route path="/admin/edit-product/:id" element={<AdminEditProductPage />}/>
           <Route path="/admin/orders" element={<AdminQueuePage />} />
-          <Route path="/admin/order-details/:id" element={<AdminOrderDetailsPage />}/>
           <Route path="/admin/chats" element={<AdminChatsPage />} />
           <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
         </Route>
