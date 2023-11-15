@@ -18,7 +18,7 @@ const sendLineNotification = async (req, res, next) => {
 
     //prepare data to send to Line API
     let json_data = {
-      message: `เชิญคิวที่ ${queueData.queueNumber} Supplier ${queueData.supplierCode} ${queueData.supplierName} คิวที่ ${queueData.queueNumber}, รบกวนลงของที่ประตู ${queueData.dockingDoorNumber} ค่ะ`,
+      message: `เชิญคิวที่ ${queueData.queueNumber} Supplier ${queueData.supplierCode} ${queueData.supplierName}, ลงของที่ประตู ${queueData.dockingDoorNumber} ค่ะ`,
     };
 
     let response = await axios({
@@ -75,7 +75,7 @@ const createNewQueue = async (req, res, next) => {
     const token = req.cookies.access_token;
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
     req.user = decoded;
-    
+  
     //create new queue
     const queue = new Queue();
     const { supplierName,supcode, goodstype, queuenumber } = req.body;
