@@ -59,7 +59,7 @@ const AdminCreateProductPageComponent = () => {
             message: response.message,
             error: response,
           });
-        }
+        }     
       });
     } catch (err) {
       console.log(err);
@@ -75,9 +75,10 @@ const AdminCreateProductPageComponent = () => {
 
   return (
     <Container>
+    
       <Row className="justify-content-md-center mt-5">
-        <Col md={1}>
-          <Link to="/admin/orders" className="btn btn-info my-3">
+        <Col md={1} className="ml-6">
+          <Link to="/admin/orders" className="btn btn-warning my-3 ">
             Go Back
           </Link>
         </Col>
@@ -86,7 +87,7 @@ const AdminCreateProductPageComponent = () => {
           <h3 style={{ marginTop: "2.5%" }}>Create New Queue</h3>
           <Form
             noValidate
-            validated={validated}
+            
             onSubmit={handleSubmit}
             onKeyDown={(e) => checkKeyDown(e)}
           >
@@ -123,13 +124,22 @@ const AdminCreateProductPageComponent = () => {
 
             {createProductResponseState.message ? (
               <Alert variant="success" className="mt-3" >
-                {createProductResponseState.message}
+                {createProductResponseState.message}:  {new Date().toLocaleString("en-GB", {
+
+                  timeZone: "Asia/Bangkok",
+                  hour12: false,
+                  year: "numeric",
+                  month: "short",
+                  day: "2-digit",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                 })} น.
                 <br/>
                 Product Type: {createProductResponseState.goodsType}
                 <br/>
-                Vendor Code: {createProductResponseState.supcode}
+                Supplier Code: {createProductResponseState.supcode}
                 <br/>
-                Vendor Name: {createProductResponseState.supName}
+                Supplier Name: {createProductResponseState.supName}
                 <br/>
                 Queue Number: {createProductResponseState.queueNumber}
               </Alert>
