@@ -48,12 +48,19 @@ const QueuePageComponent = ({ getQueue }) => {
     //show alert with input field
     const dockingDoorNumber = prompt("กรุณากรอกเลขประตูที่เรียกคิว");
     //include dockingDoorNumber in request body
-    const response = await axios.put(
-      `/api/queue/update-docknumber/${queueID}`,
-      { dockingNumber: dockingDoorNumber }
-    );
-    setRefresh(!refresh);
-    return response.data;
+    
+    // check dockingDoorNumber is not empty
+    if (dockingDoorNumber) {
+      const response = await axios.put(
+        `/api/queue/update-docknumber/${queueID}`,
+        { dockingNumber: dockingDoorNumber }
+      );
+      setRefresh(!refresh);
+      return response.data;
+    } else{
+      return "cancel";
+    }
+    
   };
 
   return (
@@ -66,6 +73,7 @@ const QueuePageComponent = ({ getQueue }) => {
         <LinkContainer to="/admin/create-new-queue">
           <Button variant="warning">Add Queue</Button>
         </LinkContainer>
+        <p></p>
         <Table striped bordered hover responsive>
           <thead >
             <tr style={{textAlign: "center"}}>
