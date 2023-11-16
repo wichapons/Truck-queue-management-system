@@ -24,7 +24,7 @@ const AdminLinksComponent = () => {
         <LinkContainer to="/admin/analytics">
           <Nav.Link>Analytics</Nav.Link> */}
         </LinkContainer>
-        <Nav.Link onClick={() => dispatch(logout())}>  Logout </Nav.Link>
+        {/* <Nav.Link onClick={() => dispatch(logout())}>  Logout </Nav.Link> */}
       </Nav>
     </Navbar>
   );

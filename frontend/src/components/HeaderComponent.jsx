@@ -95,9 +95,10 @@ useEffect(() => {
               </Button>
             </InputGroup> */}
           </Nav>
+          
 
           <Nav className="me-auto"> 
-            {userInfo.name && userInfo.isAdmin === false ? (
+            {userInfo.name && userInfo.isAdmin === true ? (
               <>
                 <NavDropdown
                   title={userInfo.name + " " + userInfo.lastName}
@@ -115,6 +116,7 @@ useEffect(() => {
                     Logout
                   </NavDropdown.Item>
                 </NavDropdown>
+                <Nav.Link href="/login" onClick={() => dispatch(logout())}> Logout </Nav.Link>
               </>
             ) : userInfo.name && userInfo.isAdmin === true ? (
               <LinkContainer to="/admin/orders">
@@ -123,6 +125,7 @@ useEffect(() => {
                   {/* red dot for inform admin that there are chat msg from cust.  */}
                   {messageReceived && <span className="position-absolute top-1 start-10 translate-middle p-2 bg-danger border border-light rounded-circle"></span>}
                 </Nav.Link>
+                
               </LinkContainer>
             ) : (
               <>
@@ -130,6 +133,7 @@ useEffect(() => {
                 <Nav.Link href="/register">Register </Nav.Link>
               </>
             )}
+            
           </Nav>
         </Navbar.Collapse>
       </Container>
