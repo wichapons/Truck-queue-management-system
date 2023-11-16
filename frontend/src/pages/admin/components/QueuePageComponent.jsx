@@ -48,7 +48,7 @@ const QueuePageComponent = ({ getQueue }) => {
     //show alert with input field
     const dockingDoorNumber = prompt("กรุณากรอกเลขประตูที่เรียกคิว");
     //include dockingDoorNumber in request body
-    
+
     // check dockingDoorNumber is not empty
     if (dockingDoorNumber) {
       const response = await axios.put(
@@ -57,10 +57,9 @@ const QueuePageComponent = ({ getQueue }) => {
       );
       setRefresh(!refresh);
       return response.data;
-    } else{
+    } else {
       return "cancel";
     }
-    
   };
 
   return (
@@ -69,15 +68,18 @@ const QueuePageComponent = ({ getQueue }) => {
         <AdminLinksComponent />
       </Col>
       <Col md={10}>
-        <h2>Truck Queue Status</h2>
-        <LinkContainer to="/admin/create-new-queue">
-          <Button variant="warning">Add Queue</Button>
-        </LinkContainer>
+        <h2 style={{ margin: "auto" }}>
+          Truck Queue Status{" "}
+          <LinkContainer to="/admin/create-new-queue">
+            <Button variant="warning">Add Queue</Button>
+          </LinkContainer>
+        </h2>
+
         <p></p>
         <Table striped bordered hover responsive>
-          <thead >
-            <tr style={{textAlign: "center"}}>
-              <th >คิว</th>
+          <thead>
+            <tr style={{ textAlign: "center" }}>
+              <th>คิว</th>
               <th>Supplier ID</th>
               <th>Supplier Name</th>
               <th>Product</th>
@@ -89,7 +91,7 @@ const QueuePageComponent = ({ getQueue }) => {
               <th>Check in</th>
             </tr>
           </thead>
-          <tbody style={{textAlign: "center" }}>
+          <tbody style={{ textAlign: "center" }}>
             {queues.map((queue, idx) => {
               return !queue.isCheckin ? (
                 <tr key={idx}>
@@ -152,13 +154,10 @@ const QueuePageComponent = ({ getQueue }) => {
                       : "N/A"}
                   </td>
 
-                  
-
-                  <td >
+                  <td>
                     <Button
                       variant="success"
                       className="btn-sm"
-                      
                       onClick={() =>
                         closeQueue(queue._id, queue.dockingDoorNumber)
                       }
@@ -167,8 +166,6 @@ const QueuePageComponent = ({ getQueue }) => {
                       <i className="bi bi-check-circle"></i>
                     </Button>
                   </td>
-
-                  
                 </tr>
               ) : (
                 ""
