@@ -24,9 +24,6 @@ import UserProfilePage from "./pages/user/UserProfilePage";
 // protected admin pages:
 import AdminUsersPage from "./pages/admin/AdminUsersPage";
 import AdminEditUserPage from "./pages/admin/AdminEditUserPage";
-import AdminProductsPage from "./pages/admin/AdminProductsPage";
-import AdminCreateProductPage from "./pages/admin/AdminCreateProductPage";
-import AdminEditProductPage from "./pages/admin/AdminEditProductPage";
 import AdminQueuePage from "./pages/admin/AdminQueuePage";
 import AdminChatsPage from "./pages/admin/AdminChatsPage";
 import AdminAnalyticsPage from "./pages/admin/AdminAnalyticsPage";
@@ -57,10 +54,7 @@ function App() {
         <Route element={<ProtectedRoutesComponents isAdminPage={true} />}>
           <Route path="/admin/users" element={<AdminUsersPage />} />
           <Route path="/admin/edit-user/:id" element={<AdminEditUserPage />} />
-          <Route path="/admin/products" element={<AdminProductsPage />} />
-          <Route path="/admin/create-new-product" element={<AdminCreateProductPage />}/>
           <Route path="/admin/create-new-queue" element={<AdminCreateQueuePage />}/>
-          <Route path="/admin/edit-product/:id" element={<AdminEditProductPage />}/>
           <Route path="/admin/queue" element={<AdminQueuePage />} />
           <Route path="/admin/chats" element={<AdminChatsPage />} />
           <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />

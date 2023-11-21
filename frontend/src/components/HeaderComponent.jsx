@@ -74,8 +74,8 @@ useEffect(() => {
     <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
       <Container>
         {/* use LinkContainer for render the specific page without reloading browser */}
-        <LinkContainer to="/">
-          <Navbar.Brand href="/"><i className="bi bi-bus-front-fill"></i>  Truck Queue Management System </Navbar.Brand>
+        <LinkContainer to="/admin/queue">
+          <Navbar.Brand><i className="bi bi-bus-front-fill"></i>  Truck Queue Management System </Navbar.Brand>
         </LinkContainer>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
         <Navbar.Collapse id="responsive-navbar-nav">

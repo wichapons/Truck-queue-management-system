@@ -43,7 +43,7 @@ const LoginPageComponent = ({loginUserApiRequest,reduxDispatch, setReduxUserStat
           //if admin navigate to admin page
         else {
           navigate('/admin/orders',{replace:true})
-          window.location.href = "/admin/orders";
+          window.location.href = "/admin/queue";
         }// navigate("/admin/orders", { replace: true });
       })
       .catch((err) => {
