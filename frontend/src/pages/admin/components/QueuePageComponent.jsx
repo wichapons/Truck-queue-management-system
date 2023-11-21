@@ -3,14 +3,21 @@ import { LinkContainer } from "react-router-bootstrap";
 import AdminLinksComponent from "../../../components/admin/AdminLinksComponent";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { ColorRing } from "react-loader-spinner";
+import Spinner from "react-bootstrap/Spinner";
 
 const QueuePageComponent = ({ getQueue }) => {
   const [queues, setQueues] = useState([]);
   const [refresh, setRefresh] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   useEffect(() => {
     getQueue()
-      .then((queues) => setQueues(queues))
+      .then((queues) => {
+        setQueues(queues);
+        setLoading(true);
+      })
       .catch((er) =>
         console.log(
           er.response.data.message ? er.response.data.message : er.response.data
@@ -19,12 +26,14 @@ const QueuePageComponent = ({ getQueue }) => {
   }, [refresh]);
 
   const sendLineNotification = async (queueID, dockingDoorNumber) => {
-    console.log(dockingDoorNumber);
+    setIsSending(true);
     if (!dockingDoorNumber) {
       alert("กรุณากรอกเลขประตูที่เรียกคิว ก่อนที่จะเรียก Vendor เข้าประตูค่ะ");
+      setIsSending(false);
       return "cancel";
     }
     const response = await axios.post(`/api/queue/send-message/${queueID}`);
+    setIsSending(false);
     setRefresh(!refresh);
     return response.data;
   };
@@ -91,28 +100,31 @@ const QueuePageComponent = ({ getQueue }) => {
               <th>Check in</th>
             </tr>
           </thead>
-          <tbody style={{ textAlign: "center" }}>
-            {queues.map((queue, idx) => {
-              return !queue.isCheckin ? (
-                <tr key={idx}>
-                  <td>{queue.queueNumber}</td>
-                  <td>{queue.supplierCode}</td>
-                  <td>{queue.supplierName ? queue.supplierName : "N/A"}</td>
-                  <td>{queue.goodsType}</td>
-                  <td>
-                    <Button
-                      className="btn-sm"
-                      variant="danger"
-                      onClick={() => assignDockingDoor(queue._id)}
-                    >
-                      <i className="bi bi-pencil-square"></i>
-                    </Button>
-                  </td>
-                  <td>
-                    {queue.dockingDoorNumber ? queue.dockingDoorNumber : "N/A"}
-                  </td>
+          {loading ? (
+            <tbody style={{ textAlign: "center" }}>
+              {queues.map((queue, idx) => {
+                return !queue.isCheckin ? (
+                  <tr key={idx}>
+                    <td>{queue.queueNumber}</td>
+                    <td>{queue.supplierCode}</td>
+                    <td>{queue.supplierName ? queue.supplierName : "N/A"}</td>
+                    <td>{queue.goodsType}</td>
+                    <td>
+                      <Button
+                        className="btn-sm"
+                        variant="danger"
+                        onClick={() => assignDockingDoor(queue._id)}
+                      >
+                        <i className="bi bi-pencil-square"></i>
+                      </Button>
+                    </td>
+                    <td>
+                      {queue.dockingDoorNumber
+                        ? queue.dockingDoorNumber
+                        : "N/A"}
+                    </td>
 
-                  {/* <td>
+                    {/* <td>
                     {queue.createdAt
                       ? new Date(queue.createdAt).toLocaleString("en-GB", {
                           timeZone: "Asia/Bangkok",
@@ -124,54 +136,77 @@ const QueuePageComponent = ({ getQueue }) => {
                       : "N/A"}
                   </td> */}
 
-                  <td>
-                    <Button
-                      variant="primary"
-                      className="btn-sm"
-                      //style={{ width: "30%" }}
-                      onClick={() =>
-                        sendLineNotification(queue._id, queue.dockingDoorNumber)
-                      }
-                      disabled={false}
-                    >
-                      <i className="bi bi-send"></i>
-                    </Button>
-                  </td>
+                    <td>
+                      <Button
+                        variant="primary"
+                        className="btn-sm"
+                        //style={{ width: "30%" }}
+                        onClick={() =>
+                          sendLineNotification(
+                            queue._id,
+                            queue.dockingDoorNumber
+                          )
+                        }
+                        disabled={isSending}
+                      >
+                        {isSending ? (
+                          <Spinner
+                            as="span"
+                            animation="border"
+                            size="sm"
+                            role="status"
+                            aria-hidden="true"
+                          />
+                        ) : (
+                          <i className="bi bi-send"></i>
+                        )}
+                      </Button>
+                    </td>
 
-                  <td>{queue.queueCalledCount}</td>
+                    <td>{queue.queueCalledCount}</td>
 
-                  <td>
-                    {queue.queueCalledTime
-                      ? new Date(queue.queueCalledTime).toLocaleString(
-                          "en-GB",
-                          {
-                            timeZone: "Asia/Bangkok",
-                            hour12: false,
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }
-                        ) + " น."
-                      : "N/A"}
-                  </td>
+                    <td>
+                      {queue.queueCalledTime
+                        ? new Date(queue.queueCalledTime).toLocaleString(
+                            "en-GB",
+                            {
+                              timeZone: "Asia/Bangkok",
+                              hour12: false,
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            }
+                          ) + " น."
+                        : "N/A"}
+                    </td>
 
-                  <td>
-                    <Button
-                      variant="success"
-                      className="btn-sm"
-                      onClick={() =>
-                        closeQueue(queue._id, queue.dockingDoorNumber)
-                      }
-                      disabled={false}
-                    >
-                      <i className="bi bi-check-circle"></i>
-                    </Button>
-                  </td>
-                </tr>
-              ) : (
-                ""
-              );
-            })}
-          </tbody>
+                    <td>
+                      <Button
+                        variant="success"
+                        className="btn-sm"
+                        onClick={() =>
+                          closeQueue(queue._id, queue.dockingDoorNumber)
+                        }
+                        disabled={false}
+                      >
+                        <i className="bi bi-check-circle"></i>
+                      </Button>
+                    </td>
+                  </tr>
+                ) : (
+                  ""
+                );
+              })}
+            </tbody>
+          ) : (
+            <ColorRing
+              visible={true}
+              height="7rem"
+              width="7rem"
+              wrapperStyle={{ marginLeft: "30rem", marginTop: "0rem" }}
+              wrapperClass="blocks-wrapper"
+              colors={["#e15b64", "#f47e60", "#f8b26a", "#abbd81", "#849b87"]}
+            />
+          )}
         </Table>
       </Col>
     </Row>

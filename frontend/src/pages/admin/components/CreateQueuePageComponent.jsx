@@ -3,14 +3,16 @@ import { Link } from "react-router-dom";
 import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import Alert from "react-bootstrap/Alert";
+import Spinner from "react-bootstrap/Spinner";
 
 const AdminCreateProductPageComponent = () => {
   const [validated, setValidated] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [createProductResponseState, setCreateProductResponseState] = useState({
     message: "",
     error: "",
-    queueId:"",
-    supcode:"",
+    queueId: "",
+    supcode: "",
   });
 
   const createQueueApiRequest = async (formInputs) => {
@@ -40,6 +42,7 @@ const AdminCreateProductPageComponent = () => {
       queuenumber: element.queuenumber.value,
     };
     try {
+      setLoading(true);
       await createQueueApiRequest(formInputs).then((response) => {
         if (response.message) {
           setCreateProductResponseState({
@@ -53,16 +56,17 @@ const AdminCreateProductPageComponent = () => {
           });
           //clear form
           form.reset();
+          setLoading(false);
           setValidated(true);
         } else {
           setCreateProductResponseState({
             message: response.message,
             error: response,
           });
-        }     
+        }
       });
     } catch (err) {
-      console.log(err);
+      alert("An error occurred. Please try again.");
     }
   };
 
@@ -75,7 +79,6 @@ const AdminCreateProductPageComponent = () => {
 
   return (
     <Container>
-    
       <Row className="justify-content-md-center mt-5">
         <Col md={1} className="ml-6">
           <Link to="/admin/queue" className="btn btn-warning my-3 ">
@@ -87,7 +90,6 @@ const AdminCreateProductPageComponent = () => {
           <h3 style={{ marginTop: "2.5%" }}>Create New Queue</h3>
           <Form
             noValidate
-            
             onSubmit={handleSubmit}
             onKeyDown={(e) => checkKeyDown(e)}
           >
@@ -103,10 +105,7 @@ const AdminCreateProductPageComponent = () => {
 
             <Form.Group className="mb-3" controlId="formBasicName">
               <Form.Label>Supplier Name</Form.Label>
-              <Form.Control
-                name="supName"
-                required
-              />
+              <Form.Control name="supName" required />
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicCount">
@@ -118,14 +117,24 @@ const AdminCreateProductPageComponent = () => {
               <Form.Control name="queuenumber" required type="number" />
             </Form.Group>
 
-            <Button variant="primary" type="submit">
-              Create
+            <Button variant="primary" type="submit" disabled={loading}>
+              {loading ? (
+                <Spinner
+                  as="span"
+                  animation="border"
+                  size="sm"
+                  role="status"
+                  aria-hidden="true"
+                />
+              ) : (
+                "Create"
+              )}
             </Button>
 
             {createProductResponseState.message ? (
-              <Alert variant="success" className="mt-3" >
-                {createProductResponseState.message}:  {new Date().toLocaleString("en-GB", {
-
+              <Alert variant="success" className="mt-3">
+                {createProductResponseState.message}:{" "}
+                {new Date().toLocaleString("en-GB", {
                   timeZone: "Asia/Bangkok",
                   hour12: false,
                   year: "numeric",
@@ -133,14 +142,15 @@ const AdminCreateProductPageComponent = () => {
                   day: "2-digit",
                   hour: "2-digit",
                   minute: "2-digit",
-                 })} น.
-                <br/>
+                })}{" "}
+                น.
+                <br />
                 Product Type: {createProductResponseState.goodsType}
-                <br/>
+                <br />
                 Supplier Code: {createProductResponseState.supcode}
-                <br/>
+                <br />
                 Supplier Name: {createProductResponseState.supName}
-                <br/>
+                <br />
                 Queue Number: {createProductResponseState.queueNumber}
               </Alert>
             ) : (
