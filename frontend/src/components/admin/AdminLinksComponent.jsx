@@ -9,7 +9,7 @@ const AdminLinksComponent = () => {
   return (
     <Navbar bg="light" variant="light">
       <Nav className="flex-column">
-        <LinkContainer to="/admin/orders">
+        <LinkContainer to="/admin/queue">
           <Nav.Link>Truck Queue Status</Nav.Link>
         </LinkContainer>
         {/* <LinkContainer to="/admin/products">

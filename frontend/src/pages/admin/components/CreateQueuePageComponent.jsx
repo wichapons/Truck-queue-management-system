@@ -78,7 +78,7 @@ const AdminCreateProductPageComponent = () => {
     
       <Row className="justify-content-md-center mt-5">
         <Col md={1} className="ml-6">
-          <Link to="/admin/orders" className="btn btn-warning my-3 ">
+          <Link to="/admin/queue" className="btn btn-warning my-3 ">
             Go Back
           </Link>
         </Col>

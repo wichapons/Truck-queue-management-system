@@ -61,7 +61,7 @@ function App() {
           <Route path="/admin/create-new-product" element={<AdminCreateProductPage />}/>
           <Route path="/admin/create-new-queue" element={<AdminCreateQueuePage />}/>
           <Route path="/admin/edit-product/:id" element={<AdminEditProductPage />}/>
-          <Route path="/admin/orders" element={<AdminQueuePage />} />
+          <Route path="/admin/queue" element={<AdminQueuePage />} />
           <Route path="/admin/chats" element={<AdminChatsPage />} />
           <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
         </Route>
