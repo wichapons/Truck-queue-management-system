@@ -198,16 +198,16 @@ const QueuePageComponent = ({ getQueue }) => {
               })}
             </tbody>
           ) : (
-            <ColorRing
+            ""
+          )}
+        </Table>
+        {!loading?<ColorRing
               visible={true}
               height="7rem"
               width="7rem"
               wrapperStyle={{ marginLeft: "30rem", marginTop: "0rem" }}
-              wrapperClass="blocks-wrapper"
               colors={["#e15b64", "#f47e60", "#f8b26a", "#abbd81", "#849b87"]}
-            />
-          )}
-        </Table>
+            />: ""}
       </Col>
     </Row>
   );
