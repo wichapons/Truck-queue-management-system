@@ -3,6 +3,7 @@ const app = express();
 
 const userRoutes = require("./userRoutes");
 const queueRoutes = require("./queueRoutes");
+const supplierRoutes = require("./supplierRoutes");
 const verifyAccessToken = require("../utils/verifyAccessToken")
 
 app.get("/get-token", (req, res) => {
@@ -15,6 +16,7 @@ app.get("/logout", (req, res) => {
 
 app.use("/queue", queueRoutes);
 app.use("/users", userRoutes);
+app.use("/suppliers", supplierRoutes);
 
 //api for sending message
 /*
