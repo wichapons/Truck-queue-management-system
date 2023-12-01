@@ -3,8 +3,9 @@ const router = express.Router()
 const supplierController = require("../controllers/supplierController")
 
 router.get("/:id", supplierController.getSupplierById);
-router.post("/newMultipleSup", supplierController.createSupplier);
+router.post("/newMultipleSup", supplierController.createMultipleSupplier);
 router.put("/:id", supplierController.updateSupplierById);
 router.delete("/:id", supplierController.deleteSupplierById);
+router.post("/create",supplierController.createSupplier);
 
 module.exports = router;
