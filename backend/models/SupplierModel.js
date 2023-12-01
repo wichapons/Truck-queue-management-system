@@ -5,6 +5,7 @@ const supplierSchema = mongoose.Schema({
     sp_code: {
         type: String,
         required: true,
+        index: true,
     },
     sp_name: {
         type: String,
