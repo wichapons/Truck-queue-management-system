@@ -11,10 +11,8 @@ dotenv.config(); //import dotenv module
 
 const createSupplier = async (req, res, next) => {
   try {
-    console.log('triggered');
     const {sp_code,sp_name,tags} = req.body;
     const supplier = new Supplier();
-
     supplier.sp_code = sp_code;
     supplier.sp_name = sp_name;
     supplier.tags = tags
@@ -28,18 +26,46 @@ const createSupplier = async (req, res, next) => {
 };
 
 
-//create mutiple supplier with JSON format
+//insert many to mongodb (JSON file)
 const createMultipleSupplier = async (req, res, next) => {
   try {
-    //use insertmany
     const supplierData = req.body;
-    const supplier = new Supplier(supplierData);
-    await supplier.insertMany();
+    console.log(supplierData);
+    // Use insertMany directly on the Supplier model
+    await Supplier.insertMany(supplierData);
     res.status(201).json({ message: "Suppliers have been created successfully" });
   } catch (error) {
+    console.log(error);
     res.status(400).send(error);
   }
 };
+
+
+const createMultipleSupplierV2 = async (req, res, next) => {
+  try {
+    const newSupplierData = req.body;
+
+    // Extract an array of unique sp_codes from the new suppliers
+    const newSupplierCodes = newSupplierData.map((supplier) => supplier.sp_code);
+
+    // Query the database to find existing suppliers with the same sp_codes
+    const existingSuppliers = await Supplier.find({ sp_code: { $in: newSupplierCodes } });
+
+    // Filter out the new suppliers that already exist in the database
+    const uniqueNewSuppliers = newSupplierData.filter(
+      (newSupplier) => !existingSuppliers.some((existingSupplier) => existingSupplier.sp_code === newSupplier.sp_code)
+    );
+
+    // Insert the unique new suppliers into the database
+    await Supplier.insertMany(uniqueNewSuppliers);
+
+    res.status(201).json({ message: "Suppliers have been created successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(400).send(error);
+  }
+};
+
 
 //get supplier by id
 const getSupplierById = async (req, res, next) => {
