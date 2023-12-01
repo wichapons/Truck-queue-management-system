@@ -22,6 +22,20 @@ const AdminCreateProductPageComponent = () => {
     return data;
   };
 
+  const checkVendorCodeApiRequest = async (supplierId) => {
+    try{
+      const { data } = await axios.get(`/api/suppliers/${supplierId}`);
+      return data;
+    }
+    catch(err){
+      console.log(err);
+      alert("ไม่พบรหัส Supplier นี้ในระบบ");
+    }
+    
+    
+    
+  };
+
   //handle product create button
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -77,6 +91,32 @@ const AdminCreateProductPageComponent = () => {
     }
   };
 
+  const checkVendorCode = (e) => {
+    if (e.keyCode === 13) {
+      e.preventDefault();
+      const form = e.currentTarget.form;
+      const element = form.elements;
+      const supplierId = element.supcode.value
+      try {
+        checkVendorCodeApiRequest(supplierId).then((response) => {
+          if(response.status === 404){
+            alert("ไม่พบรหัส Supplier นี้ในระบบ");
+          }
+          console.log(response);
+          if (response.sp_name) {
+            console.log(response.sp_name);
+            element.supName.value = response.sp_name;
+          } else {
+            alert("ไม่พบรหัส Supplier นี้ในระบบ");
+          }
+        });
+      } catch (err) {
+        alert("An error occurred. Please try again.");
+      }
+      
+    }
+  }
+
   return (
     <Container>
       <Row className="justify-content-md-center mt-5">
@@ -100,7 +140,9 @@ const AdminCreateProductPageComponent = () => {
                 required
                 type="number"
                 inputMode="numeric"
+                onKeyDown={(e) => {checkVendorCode(e)}}
               />
+              
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicName">
