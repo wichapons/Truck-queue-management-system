@@ -1,8 +1,8 @@
 import QueuePageComponent from "./components/QueuePageComponent";
 import axios from "axios";
 
-const getQueue = async() => {
-    const response = await axios.get("/api/queue");
+const getQueue = async(producType) => {
+    const response = await axios.get(`/api/queue/${producType}`);
     return response.data
 }
 

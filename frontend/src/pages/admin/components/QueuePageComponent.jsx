@@ -11,19 +11,42 @@ const QueuePageComponent = ({ getQueue }) => {
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
+  const [productType, setProductType] = useState(null);
 
   useEffect(() => {
-    getQueue()
-      .then((queues) => {
-        setQueues(queues);
-        setLoading(true);
+    // Get productType from user info
+    axios.get("/api/get-token")
+      .then((res) => {
+        if (res.data) {
+          console.log(res.data);
+          setProductType(res.data.productType);
+        } else {
+          alert('Cannot get access token');
+          return;
+        }
       })
-      .catch((er) =>
-        console.log(
-          er.response.data.message ? er.response.data.message : er.response.data
-        )
-      );
-  }, [refresh]);
+      .then(() => {
+        // Fetch data from DB based on product type
+        getQueue(productType)
+          .then((queues) => {
+            setQueues(queues);
+            setLoading(true);
+          })
+          .catch((error) => {
+            console.error(
+              error.response.data.message
+                ? error.response.data.message
+                : error.response.data
+            );
+          });
+      })
+      .catch((error) => {
+        console.error("Error fetching access token:", error);
+      });
+  }, [refresh, productType]);
+  
+
+    
 
   const sendLineNotification = async (queueID, dockingDoorNumber) => {
     setIsSending(true);
@@ -70,6 +93,7 @@ const QueuePageComponent = ({ getQueue }) => {
       return "cancel";
     }
   };
+
 
   return (
     <Row className="m-5">

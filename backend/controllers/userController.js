@@ -44,7 +44,8 @@ const registerUser = async (req, res, next) => {
             user.lastName,
             user.email,
             user.isAdmin,
-            user.isGRAdmin
+            user.isGRAdmin,
+            user.productType
           ),
           cookieParams
         ) //send cookie to client
@@ -95,7 +96,8 @@ const loginUser = async (req, res, next) => {
             user.lastName,
             user.email,
             user.isAdmin,
-            user.isGRAdmin
+            user.isGRAdmin,
+            user.productType
           ),
           cookieParams
         )
@@ -109,6 +111,7 @@ const loginUser = async (req, res, next) => {
             isAdmin: user.isAdmin,
             isGRAdmin: user.isGRAdmin,
             doNotLogout,
+            productType:user.productType
           },
         });
     } else {

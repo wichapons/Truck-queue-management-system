@@ -65,9 +65,27 @@ const sendLineNotification = async (req, res, next) => {
 };
 
 const getAllQueue = async (req, res, next) => {
-  let queueData = await Queue.find();
-  res.status(200).json(queueData);
+  let productType = req.params.productType;
+  //capitalize first character
+  const capitalizeFirstLetter = (str) => {
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  };
+
+  productType = capitalizeFirstLetter(productType);
+
+  if (!productType) {
+    return res.status(400).json({ error: 'No product type provided in the request' });
+  }
+
+  if (productType === 'All') {
+    let queueData = await Queue.find();
+    res.status(200).json(queueData);
+  } else {
+    let queueData = await Queue.find({goodsType: productType});
+    res.status(200).json(queueData);
+  }
 };
+
 
 const createNewQueue = async (req, res, next) => {
   try {

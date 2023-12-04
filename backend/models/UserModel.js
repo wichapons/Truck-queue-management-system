@@ -31,6 +31,11 @@ const userSchema = mongoose.Schema({
     required: true,
     default: false
   },
+  productType:{
+    type: String,
+    required: true,
+    default: null
+  }
 },{
     timestamps: true
 });

@@ -17,7 +17,7 @@ router.put("/paid/:id", orderController.updateOrderToPaid);
 router.use(verifyAuthToken.verifyIsAdmin) 
 
 router.post("/send-message/:id", queueController.sendLineNotification);
-router.get("/", queueController.getAllQueue);
+router.get("/:productType", queueController.getAllQueue);
 router.post("/create", queueController.createNewQueue);
 router.put("/close/:id", queueController.closeQueue);
 router.put("/update-docknumber/:id", queueController.updateDockingNumber);
