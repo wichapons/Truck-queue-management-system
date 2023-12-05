@@ -18,7 +18,6 @@ const QueuePageComponent = ({ getQueue }) => {
     axios.get("/api/get-token")
       .then((res) => {
         if (res.data) {
-          console.log(res.data);
           setProductType(res.data.productType);
         } else {
           alert('Cannot get access token');
