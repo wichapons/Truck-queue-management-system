@@ -34,7 +34,7 @@ const userSchema = mongoose.Schema({
   productType:{
     type: String,
     required: true,
-    default: null
+    default: "null"
   }
 },{
     timestamps: true
