@@ -28,7 +28,9 @@ const QueuePageComponent = ({ getQueue }) => {
         // Fetch data from DB based on product type
         getQueue(productType)
           .then((queues) => {
-            setQueues(queues);
+            //sort by queue number ASC
+            const sortedQueues = [...queues].sort((a, b) => a.queueNumber - b.queueNumber);
+            setQueues(sortedQueues);
             setLoading(true);
           })
           .catch((error) => {
@@ -114,7 +116,7 @@ const QueuePageComponent = ({ getQueue }) => {
               <th>คิว</th>
               <th>Supplier ID</th>
               <th>Supplier Name</th>
-              <th>Product</th>
+              <th>Doc Type</th>
               <th>Assign Dock</th>
               <th>ประตู</th>
               <th>เรียกคิว</th>
