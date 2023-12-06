@@ -13,6 +13,7 @@ const QueuePageComponent = ({ getQueue }) => {
   const [isSending, setIsSending] = useState(false);
   const [productType, setProductType] = useState(null);
 
+
   useEffect(() => {
     // Get productType from user info
     axios.get("/api/get-token")
@@ -29,6 +30,7 @@ const QueuePageComponent = ({ getQueue }) => {
         getQueue(productType)
           .then((queues) => {
             //sort by queue number ASC
+            console.log(queues);
             const sortedQueues = [...queues].sort((a, b) => a.queueNumber - b.queueNumber);
             setQueues(sortedQueues);
             setLoading(true);
@@ -94,6 +96,8 @@ const QueuePageComponent = ({ getQueue }) => {
       return "cancel";
     }
   };
+
+
 
 
   return (
