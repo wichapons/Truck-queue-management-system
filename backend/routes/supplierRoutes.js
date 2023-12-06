@@ -7,5 +7,6 @@ router.post("/newMultipleSup", supplierController.createMultipleSupplier);
 router.put("/:id", supplierController.updateSupplierById);
 router.delete("/:id", supplierController.deleteSupplierById);
 router.post("/create",supplierController.createSupplier);
+router.get('/search/:prefix', supplierController.searchSupplierByIdPrefix);
 
 module.exports = router;
