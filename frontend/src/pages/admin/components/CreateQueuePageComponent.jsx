@@ -5,6 +5,7 @@ import axios from "axios";
 import Alert from "react-bootstrap/Alert";
 import Spinner from "react-bootstrap/Spinner";
 import Dropdown from "react-bootstrap/Dropdown";
+import { AsyncTypeahead } from "react-bootstrap-typeahead";
 
 const AdminCreateProductPageComponent = () => {
   const [validated, setValidated] = useState(false);
@@ -15,6 +16,9 @@ const AdminCreateProductPageComponent = () => {
     queueId: "",
     supcode: "",
   });
+  const [isSupIdLoading, setIsSupIdLoading] = useState(false);
+  const [supId, setSupId] = useState([]);
+  const [currentSupId, setCurrentSupId] = useState("");
 
   const createQueueApiRequest = async (formInputs) => {
     const { data } = await axios.post(`/api/queue/create`, {
@@ -38,21 +42,20 @@ const AdminCreateProductPageComponent = () => {
     event.preventDefault();
     const form = event.currentTarget;
     const element = form.elements;
-    if(element.goodstype.value === 'เลือกประเภทเอกสาร'){
-      alert('กรุณาเลือกประเภทเอกสาร')
+    if (element.goodstype.value === "เลือกประเภทเอกสาร") {
+      alert("กรุณาเลือกประเภทเอกสาร");
       return;
     }
-    
+
     //check input validity
     if (form.checkValidity() === false) {
       event.stopPropagation();
       return;
     }
     setValidated(true);
-
     // Extract form input values
     const formInputs = {
-      supcode: element.supcode.value,
+      supcode: currentSupId[0],
       supplierName: element.supName.value,
       goodstype: element.goodstype.value,
       queuenumber: element.queuenumber.value,
@@ -94,11 +97,11 @@ const AdminCreateProductPageComponent = () => {
   };
 
   const checkVendorCode = (e) => {
+    
     if (e.keyCode === 13) {
-      e.preventDefault();
       const form = e.currentTarget.form;
       const element = form.elements;
-      const supplierId = element.supcode.value;
+      const supplierId = e.target.value;
       try {
         checkVendorCodeApiRequest(supplierId).then((response) => {
           if (response.status === 404) {
@@ -115,6 +118,23 @@ const AdminCreateProductPageComponent = () => {
       } catch (err) {
         alert("An error occurred. Please try again.");
       }
+    }
+  };
+
+  const handleSearch = async (query) => {
+
+    setIsSupIdLoading(true);
+    try {
+      // Send a GET request for getting suppliers ID
+      const response = await axios.get(`/api/suppliers/search/${query}`);
+      // Assuming response.data contains the array of suppliers
+      const items = response.data;
+      setSupId(items);
+      setIsSupIdLoading(false);
+    } catch (error) {
+      // Handle errors, e.g., log the error or set an error state
+      console.error("Error fetching suppliers:", error);
+      setIsSupIdLoading(false);
     }
   };
 
@@ -136,7 +156,7 @@ const AdminCreateProductPageComponent = () => {
           >
             <Form.Group className="mb-3" controlId="formBasicName">
               <Form.Label>Supplier Code</Form.Label>
-              <Form.Control
+              {/* <Form.Control
                 name="supcode"
                 required
                 type="number"
@@ -144,7 +164,32 @@ const AdminCreateProductPageComponent = () => {
                 onKeyDown={(e) => {
                   checkVendorCode(e);
                 }}
-              />
+              /> */}
+              <AsyncTypeahead
+              id="async-example"
+              name="supcode"
+              required
+              type="number"
+              inputMode="numeric"
+              isLoading={isSupIdLoading}
+              labelKey="login"
+              minLength={4}
+              onSearch={handleSearch}
+              onChange={(selected)=>{
+                setCurrentSupId(selected);
+                console.log(currentSupId)
+              }}
+              onKeyDown={(e) => {
+                  checkVendorCode(e);
+                }}
+              options={supId}
+              placeholder="Search for Suppliers Code"
+              renderMenuItemChildren={(option) => (
+                <>
+                  <span>{option}</span>
+                </>
+              )}
+            />
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicName">
@@ -155,10 +200,17 @@ const AdminCreateProductPageComponent = () => {
             <Form.Group className="mb-3" controlId="formBasicCount">
               <Form.Label>ประเภทเอกสาร</Form.Label>
               {/* <Form.Control name="goodstype" required type="text" /> */}
-              <Form.Select required
-                name="goodstype" aria-label="Default select example" type="text" placeholder="Open this select menu">
-                <option disabled="true" selected>เลือกประเภทเอกสาร</option>
-                <option value="Consignment">Consignment</option> 
+              <Form.Select
+                required
+                name="goodstype"
+                aria-label="Default select example"
+                type="text"
+                placeholder="Open this select menu"
+              >
+                 <option value="เลือกประเภทเอกสาร">
+                  เลือกประเภทเอกสาร
+                  </option>
+                <option value="Consignment">Consignment</option>
                 <option value="Credit">Credit</option>
               </Form.Select>
             </Form.Group>
@@ -167,6 +219,8 @@ const AdminCreateProductPageComponent = () => {
               <Form.Label>ลำดับคิว</Form.Label>
               <Form.Control name="queuenumber" required type="number" />
             </Form.Group>
+
+            
 
             <Button variant="primary" type="submit" disabled={loading}>
               {loading ? (
