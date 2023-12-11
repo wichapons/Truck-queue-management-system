@@ -13,6 +13,7 @@ const QueuePageComponent = ({ getQueue }) => {
   const [isSending, setIsSending] = useState(false);
   const [productType, setProductType] = useState(null);
 
+
   useEffect(() => {
     // Get productType from user info
     axios.get("/api/get-token")
@@ -28,7 +29,10 @@ const QueuePageComponent = ({ getQueue }) => {
         // Fetch data from DB based on product type
         getQueue(productType)
           .then((queues) => {
-            setQueues(queues);
+            //sort by queue number ASC
+            console.log(queues);
+            const sortedQueues = [...queues].sort((a, b) => a.queueNumber - b.queueNumber);
+            setQueues(sortedQueues);
             setLoading(true);
           })
           .catch((error) => {
@@ -94,6 +98,8 @@ const QueuePageComponent = ({ getQueue }) => {
   };
 
 
+
+
   return (
     <Row className="m-5">
       <Col md={2}>
@@ -114,7 +120,7 @@ const QueuePageComponent = ({ getQueue }) => {
               <th>คิว</th>
               <th>Supplier ID</th>
               <th>Supplier Name</th>
-              <th>Product</th>
+              <th>Doc Type</th>
               <th>Assign Dock</th>
               <th>ประตู</th>
               <th>เรียกคิว</th>

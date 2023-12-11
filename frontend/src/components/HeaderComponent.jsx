@@ -104,10 +104,10 @@ useEffect(() => {
                   title={userInfo.name + " " + userInfo.lastName}
                   id="collasible-nav-dropdown"
                 >
-                  <NavDropdown.Item href="/user/my-orders">
+                  {/* <NavDropdown.Item href="/user/my-orders">
                     My Orders
                   </NavDropdown.Item>
-                  <NavDropdown.Item href="/user">Profile</NavDropdown.Item>
+                  <NavDropdown.Item href="/user">Profile</NavDropdown.Item> */}
                   <NavDropdown.Divider />
                   <NavDropdown.Item
                     href="/login"

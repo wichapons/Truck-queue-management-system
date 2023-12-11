@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from "react";
 import axios from "axios";
 import Alert from "react-bootstrap/Alert";
 import Spinner from "react-bootstrap/Spinner";
+import Dropdown from "react-bootstrap/Dropdown";
 
 const AdminCreateProductPageComponent = () => {
   const [validated, setValidated] = useState(false);
@@ -23,17 +24,13 @@ const AdminCreateProductPageComponent = () => {
   };
 
   const checkVendorCodeApiRequest = async (supplierId) => {
-    try{
+    try {
       const { data } = await axios.get(`/api/suppliers/${supplierId}`);
       return data;
-    }
-    catch(err){
+    } catch (err) {
       console.log(err);
       alert("ไม่พบรหัส Supplier นี้ในระบบ");
     }
-    
-    
-    
   };
 
   //handle product create button
@@ -41,6 +38,11 @@ const AdminCreateProductPageComponent = () => {
     event.preventDefault();
     const form = event.currentTarget;
     const element = form.elements;
+    if(element.goodstype.value === 'เลือกประเภทเอกสาร'){
+      alert('กรุณาเลือกประเภทเอกสาร')
+      return;
+    }
+    
     //check input validity
     if (form.checkValidity() === false) {
       event.stopPropagation();
@@ -96,10 +98,10 @@ const AdminCreateProductPageComponent = () => {
       e.preventDefault();
       const form = e.currentTarget.form;
       const element = form.elements;
-      const supplierId = element.supcode.value
+      const supplierId = element.supcode.value;
       try {
         checkVendorCodeApiRequest(supplierId).then((response) => {
-          if(response.status === 404){
+          if (response.status === 404) {
             alert("ไม่พบรหัส Supplier นี้ในระบบ");
           }
           console.log(response);
@@ -113,9 +115,8 @@ const AdminCreateProductPageComponent = () => {
       } catch (err) {
         alert("An error occurred. Please try again.");
       }
-      
     }
-  }
+  };
 
   return (
     <Container>
@@ -140,9 +141,10 @@ const AdminCreateProductPageComponent = () => {
                 required
                 type="number"
                 inputMode="numeric"
-                onKeyDown={(e) => {checkVendorCode(e)}}
+                onKeyDown={(e) => {
+                  checkVendorCode(e);
+                }}
               />
-              
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicName">
@@ -151,9 +153,16 @@ const AdminCreateProductPageComponent = () => {
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicCount">
-              <Form.Label>ประเภทสินค้า</Form.Label>
-              <Form.Control name="goodstype" required type="text" />
+              <Form.Label>ประเภทเอกสาร</Form.Label>
+              {/* <Form.Control name="goodstype" required type="text" /> */}
+              <Form.Select required
+                name="goodstype" aria-label="Default select example" type="text" placeholder="Open this select menu">
+                <option disabled="true" selected>เลือกประเภทเอกสาร</option>
+                <option value="Consignment">Consignment</option> 
+                <option value="Credit">Credit</option>
+              </Form.Select>
             </Form.Group>
+
             <Form.Group className="mb-3" controlId="formBasicPrice">
               <Form.Label>ลำดับคิว</Form.Label>
               <Form.Control name="queuenumber" required type="number" />

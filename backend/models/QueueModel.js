@@ -10,7 +10,7 @@ const queueSchema = mongoose.Schema({
         required: true
     },
     supplierCode:{
-        type: Number,
+        type: String,
         required: true
     },
     goodsType: {

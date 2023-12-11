@@ -57,7 +57,6 @@ const sendLineNotification = async (req, res, next) => {
         console.log(error);
         return "something wrong while fetching data to Line API";
       });
-    console.log(response);
     res.status(200).send(response);
   } catch (err) {
     next(err);
