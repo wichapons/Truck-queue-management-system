@@ -38,11 +38,11 @@ const AdminCreateProductPageComponent = () => {
     event.preventDefault();
     const form = event.currentTarget;
     const element = form.elements;
-    if(element.goodstype.value === 'เลือกประเภทเอกสาร'){
-      alert('กรุณาเลือกประเภทเอกสาร')
+    if (element.goodstype.value === "เลือกประเภทเอกสาร") {
+      alert("กรุณาเลือกประเภทเอกสาร");
       return;
     }
-    
+
     //check input validity
     if (form.checkValidity() === false) {
       event.stopPropagation();
@@ -134,6 +134,19 @@ const AdminCreateProductPageComponent = () => {
             onSubmit={handleSubmit}
             onKeyDown={(e) => checkKeyDown(e)}
           >
+            <Row md={3}>
+              <Form.Group className="mb-3" controlId="formBasicCheckbox">
+                <Form.Check
+                  name="multipleVendors"
+                  type="checkbox"
+                  label="Multiple Vendors"
+                />
+              </Form.Group>
+              <Form.Group className="mb-3" controlId="formBasicCheckbox2">
+                <Form.Check name="rtv" type="checkbox" label="RTV" />
+              </Form.Group>
+            </Row>
+
             <Form.Group className="mb-3" controlId="formBasicName">
               <Form.Label>Supplier Code</Form.Label>
               <Form.Control
@@ -155,11 +168,19 @@ const AdminCreateProductPageComponent = () => {
             <Form.Group className="mb-3" controlId="formBasicCount">
               <Form.Label>ประเภทเอกสาร</Form.Label>
               {/* <Form.Control name="goodstype" required type="text" /> */}
-              <Form.Select required
-                name="goodstype" aria-label="Default select example" type="text" placeholder="Open this select menu">
-                <option disabled="true" selected>เลือกประเภทเอกสาร</option>
-                <option value="Consignment">Consignment</option> 
+              <Form.Select
+                required
+                name="goodstype"
+                aria-label="Default select example"
+                type="text"
+                placeholder="Open this select menu"
+              >
+                <option disabled="true" selected>
+                  เลือกประเภทเอกสาร
+                </option>
+                <option value="Consignment">Consignment</option>
                 <option value="Credit">Credit</option>
+                <option value="Beautrium">Beautrium</option>
               </Form.Select>
             </Form.Group>
 
