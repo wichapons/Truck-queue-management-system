@@ -118,6 +118,14 @@ const createNewQueue = async (req, res, next) => {
       return;
     }
 
+    //auto-mataching docking door
+    if(goodstype==="Consignment" || goodstype === "Credit"){
+      queue.dockingDoorNumber = 50
+    }
+    else if (goodstype === "Beautrium"){
+      queue.dockingDoorNumber = 58
+    }
+
     await queue.save(); // save to database
     res.json({
       message: "New queue created",
