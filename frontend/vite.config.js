@@ -9,7 +9,7 @@ export default defineConfig({
     port: '3000',
     proxy: {
       '/api': {
-        target: "https://truck-queue-management-uat-backend.onrender.com",
+        target: "http://localhost:8796/",
         changeOrigin: true,
         //rewrite: (path) => path.replace(/^\/api/, '')
       }
