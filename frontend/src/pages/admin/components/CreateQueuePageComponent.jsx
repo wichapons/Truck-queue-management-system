@@ -15,6 +15,7 @@ const AdminCreateProductPageComponent = () => {
     queueId: "",
     supcode: "",
   });
+  const [numPairs, setNumPairs] = useState(0);
 
   const createQueueApiRequest = async (formInputs) => {
     const { data } = await axios.post(`/api/queue/create`, {
@@ -99,14 +100,13 @@ const AdminCreateProductPageComponent = () => {
       const form = e.currentTarget.form;
       const element = form.elements;
       const supplierId = element.supcode.value;
+
       try {
         checkVendorCodeApiRequest(supplierId).then((response) => {
           if (response.status === 404) {
             alert("ไม่พบรหัส Supplier นี้ในระบบ");
           }
-          console.log(response);
           if (response.sp_name) {
-            console.log(response.sp_name);
             element.supName.value = response.sp_name;
           } else {
             alert("ไม่พบรหัส Supplier นี้ในระบบ");
@@ -116,6 +116,72 @@ const AdminCreateProductPageComponent = () => {
         alert("An error occurred. Please try again.");
       }
     }
+  };
+
+  const checkMutipleVendorCode = (e, index) => {
+    if (e.keyCode === 13) {
+      e.preventDefault();
+      const form = e.currentTarget.form;
+      const element = form.elements;
+      
+      // Get the supplier code and name input fields based on the index
+      const supplierId = element[`supcode${index}`].value;
+      const supNameField = element[`supName${index}`];
+  
+      try {
+        checkVendorCodeApiRequest(supplierId).then((response) => {
+          if (response.status === 404) {
+            alert("ไม่พบรหัส Supplier นี้ในระบบ");
+          }
+          if (response.sp_name) {
+            supNameField.value = response.sp_name;
+          } else {
+            alert("ไม่พบรหัส Supplier นี้ในระบบ");
+          }
+        });
+      } catch (err) {
+        alert("An error occurred. Please try again.");
+      }
+    }
+  };
+
+  // Function to handle change in the checkbox
+  const handleMultipleVendorChange = (e) => {
+    /*
+    let numberOfSupInput = Number(prompt("please enter number of suppliers input"));
+    if (numberOfSupInput === null || isNaN(numberOfSupInput)){
+      return;
+    }
+    */
+
+    setNumPairs(
+      e.target.checked ? Number(prompt("please enter number of suppliers input")): 0
+    ); // Change the number of pairs based on checkbox state
+  };
+
+  const renderSupplierInputs = () => {
+    const inputs = [];
+    for (let i = 0; i < numPairs; i++) {
+      inputs.push(
+        <div key={i}>
+          <Form.Group className="mb-3" controlId={`formBasicCode${i}`}>
+            <Form.Label>Supplier Code {i+2}</Form.Label>
+            <Form.Control
+              name={`supcode${i}`}
+              required
+              type="number"
+              inputMode="numeric"
+              onKeyDown={(e) => checkMutipleVendorCode(e,i)}
+            />
+          </Form.Group>
+          <Form.Group className="mb-3" controlId={`formBasicName${i}`}>
+            <Form.Label>Supplier Name {i+2}</Form.Label>
+            <Form.Control name={`supName${i}`} required />
+          </Form.Group>
+        </div>
+      );
+    }
+    return inputs;
   };
 
   return (
@@ -134,12 +200,16 @@ const AdminCreateProductPageComponent = () => {
             onSubmit={handleSubmit}
             onKeyDown={(e) => checkKeyDown(e)}
           >
+
+          {/* CHECKBOX SECTION */}
+          
             <Row md={3}>
               <Form.Group className="mb-3" controlId="formBasicCheckbox">
                 <Form.Check
                   name="multipleVendors"
                   type="checkbox"
                   label="Multiple Vendors"
+                  onChange={handleMultipleVendorChange}
                 />
               </Form.Group>
               <Form.Group className="mb-3" controlId="formBasicCheckbox2">
@@ -165,6 +235,9 @@ const AdminCreateProductPageComponent = () => {
               <Form.Control name="supName" required />
             </Form.Group>
 
+            {/* Render Supplier Code and Supplier Name inputs based on the number of pairs */}
+          {renderSupplierInputs()}
+
             <Form.Group className="mb-3" controlId="formBasicCount">
               <Form.Label>ประเภทเอกสาร</Form.Label>
               {/* <Form.Control name="goodstype" required type="text" /> */}
@@ -175,7 +248,7 @@ const AdminCreateProductPageComponent = () => {
                 type="text"
                 placeholder="Open this select menu"
               >
-                <option disabled="true" selected>
+                <option disabled selected>
                   เลือกประเภทเอกสาร
                 </option>
                 <option value="Consignment">Consignment</option>
