@@ -39,6 +39,7 @@ const AdminCreateProductPageComponent = () => {
     event.preventDefault();
     const form = event.currentTarget;
     const element = form.elements;
+
     if (element.goodstype.value === "เลือกประเภทเอกสาร") {
       alert("กรุณาเลือกประเภทเอกสาร");
       return;
@@ -51,10 +52,22 @@ const AdminCreateProductPageComponent = () => {
     }
     setValidated(true);
 
-    // Extract form input values
-    const formInputs = {
-      supcode: element.supcode.value,
+    // Extract form input values from multiple supplier input
+    const suppliers = [];
+    for (let i = 0; i < numPairs; i++) {
+      suppliers.push({
+        supplierCode: element[`supcode${i}`].value,
+        supplierName: element[`supName${i}`].value,
+      });
+    }
+    
+    suppliers.push({
+      supplierCode: element.supcode.value,
       supplierName: element.supName.value,
+    })
+
+    const formInputs = {
+      suppliers,
       goodstype: element.goodstype.value,
       queuenumber: element.queuenumber.value,
     };
@@ -66,8 +79,7 @@ const AdminCreateProductPageComponent = () => {
             message: response.message,
             error: "",
             queueId: response.queueId,
-            supcode: response.supcode,
-            supName: response.supName,
+            suppliers: response.suppliers,
             goodsType: response.goodsType,
             queueNumber: response.queueNumber,
           });
@@ -83,6 +95,7 @@ const AdminCreateProductPageComponent = () => {
         }
       });
     } catch (err) {
+      console.log(err);
       alert("An error occurred. Please try again.");
     }
   };
@@ -292,9 +305,13 @@ const AdminCreateProductPageComponent = () => {
                 <br />
                 Product Type: {createProductResponseState.goodsType}
                 <br />
-                Supplier Code: {createProductResponseState.supcode}
+                Supplier Code: {createProductResponseState.suppliers.map((supplier)=>{
+                  return supplier.supplierCode + ', '
+                })}
                 <br />
-                Supplier Name: {createProductResponseState.supName}
+                Supplier Name: {createProductResponseState.suppliers.map((supplier)=>{
+                  return supplier.supplierName
+                })}
                 <br />
                 Queue Number: {createProductResponseState.queueNumber}
               </Alert>
