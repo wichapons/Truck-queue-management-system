@@ -5,14 +5,18 @@ const queueSchema = mongoose.Schema({
         type: Number,
         default: null
     },
-    supplierName:{
-        type: String,
-        required: true
-    },
-    supplierCode:{
-        type: String,
-        required: true
-    },
+    suppliers: [
+        {
+          supplierName: {
+            type: String,
+            required: true,
+          },
+          supplierCode: {
+            type: String,
+            required: true,
+          },
+        },
+      ],
     goodsType: {
         type: String,
         required: true
