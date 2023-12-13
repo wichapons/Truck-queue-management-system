@@ -30,7 +30,6 @@ const QueuePageComponent = ({ getQueue }) => {
         getQueue(productType)
           .then((queues) => {
             //sort by queue number ASC
-            console.log(queues);
             const sortedQueues = [...queues].sort(
               (a, b) => a.queueNumber - b.queueNumber
             );
