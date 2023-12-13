@@ -1,0 +1,21 @@
+/* NotFoundPage.css */
+.not-found-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh; /* Make the container take the full height of the viewport */
+    text-align: center;
+  }
+  
+  .not-found-title {
+    color: #e15b64; /* Red color, adjust as needed */
+    font-size: 3rem; /* Adjust the font size */
+    margin-bottom: 1rem; /* Add some bottom margin for spacing */
+  }
+  
+  .not-found-message {
+    color: #555; /* Dark gray color, adjust as needed */
+    font-size: 1.5rem; /* Adjust the font size */
+  }
+  
