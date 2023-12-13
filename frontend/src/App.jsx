@@ -26,8 +26,7 @@ import AdminQueuePage from "./pages/admin/AdminQueuePage";
 import AdminChatsPage from "./pages/admin/AdminChatsPage";
 import AdminAnalyticsPage from "./pages/admin/AdminAnalyticsPage";
 import AdminCreateQueuePage from "./pages/admin/AdminCreateQueuePage";
-//separate CSS file
-import './NotFoundPage.css'; 
+
 
 function App() {
   return (
