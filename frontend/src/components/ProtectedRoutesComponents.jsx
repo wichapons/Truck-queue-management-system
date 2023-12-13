@@ -10,16 +10,23 @@ const ProtectedRoutesComponents = ({ isAdminPage }) => {
   const [isAdmin, setIsAdmin] = useState(null);
 
   useEffect(() => {
-    axios.get("/api/get-token").then(function (res) {
-      if (res.data) {
-        setIsAuth(res.data.token);
-        setIsAdmin(res.data.isAdmin);
-      } else {
+    axios
+      .get("/api/get-token")
+      .then((res) => {
+        console.log("Successful response:", res);
+        if (res.data) {
+          setIsAuth(res.data.token);
+          setIsAdmin(res.data.isAdmin);
+        } else {
+          setIsAuth(false);
+          setIsAdmin(false);
+        }
+      })
+      .catch((error) => {
+        console.error("Error response:", error);
         setIsAuth(false);
         setIsAdmin(false);
-      }
-      return;
-    });
+      });
   }, [isAuth, isAdmin]);
 
   //while verifying Cookie & Token render loading ring
@@ -41,7 +48,7 @@ const ProtectedRoutesComponents = ({ isAdminPage }) => {
     return <LoginPage />;
   } else if (isAuth && isAdminPage && isAdmin) {
     return <Outlet />;
-  } else if (isAuth && !isAdmin && !isAdminPage ) {
+  } else if (isAuth && !isAdmin && !isAdminPage) {
     return (
       <>
         <UserChatComponent />
