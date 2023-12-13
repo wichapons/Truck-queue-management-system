@@ -128,13 +128,15 @@ const QueuePageComponent = ({ getQueue }) => {
           {loading ? (
             <tbody style={{ textAlign: "center" }}>
               {queues.map((queue, idx) => {
+                idx++
                 return !queue.isCheckin ? (
                   <tr key={idx}>
                     <td>{queue.queueNumber}</td>
                     <td>
-                      {queue.suppliers.map((supplier) => {
+                      {queue.suppliers.map((supplier,index2) => {
+                        index2 = index2 +200
                         return (
-                          <div key={idx}>
+                          <div key={index2}>
                             {supplier.supplierCode}
                             <br />
                           </div>
@@ -142,9 +144,10 @@ const QueuePageComponent = ({ getQueue }) => {
                       })}
                     </td>
                     <td>
-                      {queue.suppliers.map((supplier) => {
+                      {queue.suppliers.map((supplier,index3) => {
+                        index3 = index3+300
                         return (
-                          <div key={idx}>
+                          <div key={index3}>
                             {supplier.supplierName}
                             <br />
                           </div>
