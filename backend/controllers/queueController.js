@@ -73,18 +73,19 @@ const getAllQueue = async (req, res, next) => {
   productType = capitalizeFirstLetter(productType);
 
   if (!productType) {
-    return res.status(400).json({ error: 'No product type provided in the request' });
+    return res
+      .status(400)
+      .json({ error: "No product type provided in the request" });
   }
 
-  if (productType === 'All') {
+  if (productType === "All") {
     let queueData = await Queue.find();
     res.status(200).json(queueData);
   } else {
-    let queueData = await Queue.find({goodsType: productType});
+    let queueData = await Queue.find({ goodsType: productType });
     res.status(200).json(queueData);
   }
 };
-
 
 const createNewQueue = async (req, res, next) => {
   try {
@@ -92,16 +93,11 @@ const createNewQueue = async (req, res, next) => {
     const token = req.cookies.access_token;
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
     req.user = decoded;
-  
-    //create new queue
-    const queue = new Queue();
-    const { supplierName,supcode, goodstype, queuenumber } = req.body;
-    queue.supplierName = supplierName;
-    queue.supplierCode = supcode;
-    queue.goodsType = goodstype;
-    queue.queueNumber = queuenumber;
-    queue.queueCreatedBy = req.user.name;
 
+    // Extract supplier-related information from the request body
+    const { suppliers, goodstype, queuenumber } = req.body;
+
+    /*
     //check if supplierCode and queueNumber is not empty
     if (queue.supplierCode == "" || queue.queueNumber == "") {
       res.status(400).json({
@@ -109,6 +105,23 @@ const createNewQueue = async (req, res, next) => {
       });
       return;
     }
+    */
+
+    // Check if suppliers array is provided
+    if (!suppliers || !Array.isArray(suppliers) || suppliers.length === 0) {
+      return res.status(400).json({
+        message: "Suppliers array must be provided with at least one supplier",
+      });
+    }
+
+    // Create a new queue
+    const queue = new Queue();
+    queue.suppliers = suppliers;
+    queue.goodsType = goodstype;
+    queue.queueNumber = queuenumber;
+    queue.queueCreatedBy = req.user.name;
+
+    /*
 
     //check if supplierCode and queueNumber is number
     if (isNaN(queue.supplierCode) || isNaN(queue.queueNumber)) {
@@ -117,25 +130,25 @@ const createNewQueue = async (req, res, next) => {
       });
       return;
     }
+    */
 
     //auto-mataching docking door
-    if(goodstype==="Consignment" || goodstype === "Credit"){
-      queue.dockingDoorNumber = 50
-    }
-    else if (goodstype === "Beautrium"){
-      queue.dockingDoorNumber = 58
+    if (goodstype === "Consignment" || goodstype === "Credit") {
+      queue.dockingDoorNumber = 50;
+    } else if (goodstype === "Beautrium") {
+      queue.dockingDoorNumber = 58;
     }
 
     await queue.save(); // save to database
     res.json({
       message: "New queue created",
       queueId: queue._id,
-      supcode: queue.supplierCode,
-      supName: queue.supplierName,
+      suppliers: queue.suppliers,
       goodsType: queue.goodsType,
       queueNumber: queue.queueNumber,
     });
   } catch (err) {
+    console.log(err);
     next(err);
   }
 };
