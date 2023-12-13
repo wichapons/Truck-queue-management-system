@@ -13,15 +13,15 @@ const QueuePageComponent = ({ getQueue }) => {
   const [isSending, setIsSending] = useState(false);
   const [productType, setProductType] = useState(null);
 
-
   useEffect(() => {
     // Get productType from user info
-    axios.get("/api/get-token")
+    axios
+      .get("/api/get-token")
       .then((res) => {
         if (res.data) {
           setProductType(res.data.productType);
         } else {
-          alert('Cannot get access token');
+          alert("Cannot get access token");
           return;
         }
       })
@@ -31,7 +31,9 @@ const QueuePageComponent = ({ getQueue }) => {
           .then((queues) => {
             //sort by queue number ASC
             console.log(queues);
-            const sortedQueues = [...queues].sort((a, b) => a.queueNumber - b.queueNumber);
+            const sortedQueues = [...queues].sort(
+              (a, b) => a.queueNumber - b.queueNumber
+            );
             setQueues(sortedQueues);
             setLoading(true);
           })
@@ -47,9 +49,6 @@ const QueuePageComponent = ({ getQueue }) => {
         console.error("Error fetching access token:", error);
       });
   }, [refresh, productType]);
-  
-
-    
 
   const sendLineNotification = async (queueID, dockingDoorNumber) => {
     setIsSending(true);
@@ -97,9 +96,6 @@ const QueuePageComponent = ({ getQueue }) => {
     }
   };
 
-
-
-
   return (
     <Row className="m-5">
       <Col md={2}>
@@ -135,10 +131,28 @@ const QueuePageComponent = ({ getQueue }) => {
                 return !queue.isCheckin ? (
                   <tr key={idx}>
                     <td>{queue.queueNumber}</td>
-                    <td>{queue.supplierCode}</td>
-                    <td>{queue.supplierName ? queue.supplierName : "N/A"}</td>
-                    <td>{queue.goodsType}</td>
                     <td>
+                      {queue.suppliers.map((supplier) => {
+                        return (
+                          <div key={idx}>
+                            {supplier.supplierCode}
+                            <br />
+                          </div>
+                        );
+                      })}
+                    </td>
+                    <td>
+                      {queue.suppliers.map((supplier) => {
+                        return (
+                          <div key={idx}>
+                            {supplier.supplierName}
+                            <br />
+                          </div>
+                        );
+                      })}
+                    </td>
+                    <td style={{ textAlign:"center", justifyContent:"center"}}>{queue.goodsType}</td>
+                    <td style={{ textAlign:"center"}}>
                       <Button
                         className="btn-sm"
                         variant="danger"
@@ -147,7 +161,7 @@ const QueuePageComponent = ({ getQueue }) => {
                         <i className="bi bi-pencil-square"></i>
                       </Button>
                     </td>
-                    <td>
+                    <td style={{ textAlign:"center"}}>
                       {queue.dockingDoorNumber
                         ? queue.dockingDoorNumber
                         : "N/A"}
@@ -165,7 +179,7 @@ const QueuePageComponent = ({ getQueue }) => {
                       : "N/A"}
                   </td> */}
 
-                    <td>
+                    <td style={{ textAlign:"center"}}>
                       <Button
                         variant="primary"
                         className="btn-sm"
@@ -192,7 +206,7 @@ const QueuePageComponent = ({ getQueue }) => {
                       </Button>
                     </td>
 
-                    <td>{queue.queueCalledCount}</td>
+                    <td style={{ textAlign:"center"}}>{queue.queueCalledCount}</td>
 
                     <td>
                       {queue.queueCalledTime
@@ -230,13 +244,17 @@ const QueuePageComponent = ({ getQueue }) => {
             ""
           )}
         </Table>
-        {!loading?<ColorRing
-              visible={true}
-              height="7rem"
-              width="7rem"
-              wrapperStyle={{ marginLeft: "30rem", marginTop: "0rem" }}
-              colors={["#e15b64", "#f47e60", "#f8b26a", "#abbd81", "#849b87"]}
-            />: ""}
+        {!loading ? (
+          <ColorRing
+            visible={true}
+            height="7rem"
+            width="7rem"
+            wrapperStyle={{ marginLeft: "30rem", marginTop: "0rem" }}
+            colors={["#e15b64", "#f47e60", "#f8b26a", "#abbd81", "#849b87"]}
+          />
+        ) : (
+          ""
+        )}
       </Col>
     </Row>
   );
