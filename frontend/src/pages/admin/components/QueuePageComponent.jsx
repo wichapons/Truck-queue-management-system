@@ -26,6 +26,7 @@ const QueuePageComponent = ({ getQueue }) => {
         }
       })
       .then(() => {
+        setLoading(true);
         // Fetch data from DB based on product type
         getQueue(productType)
           .then((queues) => {
@@ -34,7 +35,7 @@ const QueuePageComponent = ({ getQueue }) => {
               (a, b) => a.queueNumber - b.queueNumber
             );
             setQueues(sortedQueues);
-            setLoading(true);
+            setRefresh(!refresh);
           })
           .catch((error) => {
             console.error(
@@ -67,9 +68,22 @@ const QueuePageComponent = ({ getQueue }) => {
       alert("กรุณาเลือกประตูที่เรียกคิว ก่อนที่จะปิดงานค่ะ");
       return "cancel";
     }
+    const response = await axios.put(`/api/queue/close/${queueID}`);
+    // Set the specific button to be disabled
+    setRefresh(!refresh);
+
+    return response.data;
+  };
+
+  const checkOut = async (queueID, isCheckin) => {
+    if (!isCheckin) {
+      alert("กรุณากด Check in ก่อน Check out ค่ะ");
+      return "cancel";
+    }
 
     if (window.confirm("ยืนยันการปิดงาน?")) {
-      const response = await axios.put(`/api/queue/close/${queueID}`);
+      const response = await axios.put(`/api/queue/checkout/${queueID}`);
+      // Set the specific button to be disabled
       setRefresh(!refresh);
       return response.data;
     } else {
@@ -80,7 +94,6 @@ const QueuePageComponent = ({ getQueue }) => {
   const assignDockingDoor = async (queueID) => {
     //show alert with input field
     const dockingDoorNumber = prompt("กรุณากรอกเลขประตูที่เรียกคิว");
-    //include dockingDoorNumber in request body
 
     // check dockingDoorNumber is not empty
     if (dockingDoorNumber) {
@@ -97,10 +110,10 @@ const QueuePageComponent = ({ getQueue }) => {
 
   return (
     <Row className="m-5">
-      <Col md={2}>
+      {/* <Col md={2}>
         <AdminLinksComponent />
-      </Col>
-      <Col md={10}>
+      </Col> */}
+      <Col md={12}>
         <h2 style={{ margin: "auto" }}>
           Truck Queue Status{" "}
           <LinkContainer to="/admin/create-new-queue">
@@ -121,19 +134,19 @@ const QueuePageComponent = ({ getQueue }) => {
               <th>เรียกคิว</th>
               <th>ครั้งที่</th>
               <th>เวลา</th>
-              <th>Check in</th>
+              <th>Check in / Out</th>
             </tr>
           </thead>
           {loading ? (
             <tbody style={{ textAlign: "center" }}>
               {queues.map((queue, idx) => {
-                idx++
-                return !queue.isCheckin ? (
+                idx++;
+                return !queue.isCheckOut ? (
                   <tr key={idx}>
                     <td>{queue.queueNumber}</td>
                     <td>
-                      {queue.suppliers.map((supplier,index2) => {
-                        index2 = index2 +200
+                      {queue.suppliers.map((supplier, index2) => {
+                        index2 = index2 + 200;
                         return (
                           <div key={index2}>
                             {supplier.supplierCode}
@@ -143,8 +156,8 @@ const QueuePageComponent = ({ getQueue }) => {
                       })}
                     </td>
                     <td>
-                      {queue.suppliers.map((supplier,index3) => {
-                        index3 = index3+300
+                      {queue.suppliers.map((supplier, index3) => {
+                        index3 = index3 + 300;
                         return (
                           <div key={index3}>
                             {supplier.supplierName}
@@ -153,17 +166,21 @@ const QueuePageComponent = ({ getQueue }) => {
                         );
                       })}
                     </td>
-                    <td style={{ textAlign:"center", justifyContent:"center"}}>{queue.goodsType}</td>
-                    <td style={{ textAlign:"center"}}>
+                    <td
+                      style={{ textAlign: "center", justifyContent: "center" }}
+                    >
+                      {queue.goodsType}
+                    </td>
+                    <td style={{ textAlign: "center" }}>
                       <Button
                         className="btn-sm"
-                        variant="danger"
+                        variant="warning"
                         onClick={() => assignDockingDoor(queue._id)}
                       >
                         <i className="bi bi-pencil-square"></i>
                       </Button>
                     </td>
-                    <td style={{ textAlign:"center"}}>
+                    <td style={{ textAlign: "center" }}>
                       {queue.dockingDoorNumber
                         ? queue.dockingDoorNumber
                         : "N/A"}
@@ -181,7 +198,7 @@ const QueuePageComponent = ({ getQueue }) => {
                       : "N/A"}
                   </td> */}
 
-                    <td style={{ textAlign:"center"}}>
+                    <td style={{ textAlign: "center" }}>
                       <Button
                         variant="primary"
                         className="btn-sm"
@@ -208,7 +225,9 @@ const QueuePageComponent = ({ getQueue }) => {
                       </Button>
                     </td>
 
-                    <td style={{ textAlign:"center"}}>{queue.queueCalledCount}</td>
+                    <td style={{ textAlign: "center" }}>
+                      {queue.queueCalledCount}
+                    </td>
 
                     <td>
                       {queue.queueCalledTime
@@ -223,18 +242,30 @@ const QueuePageComponent = ({ getQueue }) => {
                           ) + " น."
                         : "N/A"}
                     </td>
-
                     <td>
-                      <Button
-                        variant="success"
-                        className="btn-sm"
-                        onClick={() =>
-                          closeQueue(queue._id, queue.dockingDoorNumber)
-                        }
-                        disabled={false}
-                      >
-                        <i className="bi bi-check-circle"></i>
-                      </Button>
+                      {queue.isCheckin ? (
+                        /* CHECK IN BUTTON */
+                        <Button
+                          variant="danger"
+                          className="btn-sm"
+                          onClick={() => checkOut(queue._id, queue.isCheckin)}
+                          disabled={queue.isCheckOut}
+                        >
+                         <i className="bi bi-door-closed"></i>
+                        </Button>
+                      ) : (
+                        /* CHECK OUT BUTTON */
+                        <Button
+                          variant="success"
+                          className="btn-sm"
+                          onClick={() =>
+                            closeQueue(queue._id, queue.dockingDoorNumber)
+                          }
+                          disabled={queue.isCheckin}
+                        >
+                          <i className="bi bi-check-circle"></i>
+                        </Button>
+                      )}
                     </td>
                   </tr>
                 ) : (
