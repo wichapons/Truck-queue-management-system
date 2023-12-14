@@ -8,10 +8,15 @@ import { InputGroup } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import { logout } from "../redux/actions/userActions";
 import { useDispatch, useSelector } from "react-redux";
-import { useEffect,useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
-import { setChatRooms,setSocket,setMessageReceived,removeChatRoom } from "../redux/actions/chatActions";
+import {
+  setChatRooms,
+  setSocket,
+  setMessageReceived,
+  removeChatRoom,
+} from "../redux/actions/chatActions";
 
 const HeaderComponent = () => {
   //import redux state
@@ -27,60 +32,77 @@ const HeaderComponent = () => {
 
   const navigate = useNavigate();
 
-
-
   //send search query to backend when user press enter or click search
   const submitHandler = (e) => {
     if (e.keyCode && e.keyCode !== 13) {
       return;
     }
     e.preventDefault();
-    if (searchQuery.trim()) {//remove space from user input 
+    if (searchQuery.trim()) {
+      //remove space from user input
       if (searchCategoryToggle === "All") {
-          navigate(`/product-list/search/${searchQuery}`);
+        navigate(`/product-list/search/${searchQuery}`);
       } else {
-          navigate(`/product-list/category/${searchCategoryToggle.replaceAll("/", ",")}/search/${searchQuery}`);
+        navigate(
+          `/product-list/category/${searchCategoryToggle.replaceAll(
+            "/",
+            ","
+          )}/search/${searchQuery}`
+        );
       }
-  } else if (searchCategoryToggle !== "All") {
-      navigate(`/product-list/category/${searchCategoryToggle.replaceAll("/", ",")}`);
-  } else {
+    } else if (searchCategoryToggle !== "All") {
+      navigate(
+        `/product-list/category/${searchCategoryToggle.replaceAll("/", ",")}`
+      );
+    } else {
       navigate("/product-list");
-  }
-}
+    }
+  };
 
-//get msg from socketio server
-useEffect(() => {
-  if (userInfo.isAdmin) {
+  //get msg from socketio server
+  useEffect(() => {
+    if (userInfo.isAdmin) {
       let audio = new Audio("/audio/chat-msg.mp3");
       const socket = io("https://topazio-shop-backend.onrender.com");
-      //send signal via socket io then admin is online, random number is for telling server how many admins are currently online 
-      socket.emit("admin connected with server", "Admin" + Math.floor(Math.random() * 1000000000000));
-      socket.on("server sends message from client to admin", ({user,message}) => {
-        dispatch(setSocket(socket));
-        dispatch(setChatRooms(user, message)); //send to redux action named setChatRooms
-        dispatch(setMessageReceived(true));  
-        audio.play();
-      })
+      //send signal via socket io then admin is online, random number is for telling server how many admins are currently online
+      socket.emit(
+        "admin connected with server",
+        "Admin" + Math.floor(Math.random() * 1000000000000)
+      );
+      socket.on(
+        "server sends message from client to admin",
+        ({ user, message }) => {
+          dispatch(setSocket(socket));
+          dispatch(setChatRooms(user, message)); //send to redux action named setChatRooms
+          dispatch(setMessageReceived(true));
+          audio.play();
+        }
+      );
       //listen to disconected signal from backend
-      socket.on("disconnected", ({reason, socketId}) => {
+      socket.on("disconnected", ({ reason, socketId }) => {
         dispatch(removeChatRoom(socketId));
-      })
+      });
       return () => socket.disconnect();
-  }
-},[userInfo.isAdmin])
-
+    }
+  }, [userInfo.isAdmin]);
 
   return (
     <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
       <Container>
         {/* use LinkContainer for render the specific page without reloading browser */}
         <LinkContainer to="/admin/queue">
-          <Navbar.Brand><i className="bi bi-bus-front-fill"></i>  Truck Queue Management System </Navbar.Brand>
+          <Navbar.Brand>
+            <i className="bi bi-bus-front-fill"></i> Truck Queue Management
+            System{" "}
+          </Navbar.Brand>
         </LinkContainer>
         <Navbar.Toggle aria-controls="responsive-navbar-nav" />
-        <Navbar.Collapse id="responsive-navbar-nav">
-          <Nav className="me-auto">
-            {/* <InputGroup>
+        <Navbar.Collapse
+          id="responsive-navbar-nav"
+          className="justify-content-center"
+        >
+          {/* <Nav className="me-auto">
+            <InputGroup>
 
               <Form.Control
                 onKeyUp={submitHandler} onChange={(e)=>{
@@ -93,13 +115,25 @@ useEffect(() => {
               <Button onClick={submitHandler} variant="warning">
                 <i className="bi bi-search"></i>
               </Button>
-            </InputGroup> */}
-          </Nav>
-          
+            </InputGroup>
+          </Nav> */}
 
-          <Nav className="me-auto"> 
+          <Nav>
             {userInfo.name && userInfo.isAdmin === true ? (
               <>
+                <Nav className="justify-content-center">
+                  <LinkContainer to="/admin/queue">
+                    <Nav.Link className="active">History</Nav.Link>
+                  </LinkContainer>
+                  <LinkContainer to="/admin/queue">
+                    <Nav.Link className="active">RTV</Nav.Link>
+                  </LinkContainer>
+                  <LinkContainer to="/admin/users">
+                    <Nav.Link className="active">User List</Nav.Link>
+                  </LinkContainer>
+
+                </Nav>
+
                 <NavDropdown
                   title={userInfo.name + " " + userInfo.lastName}
                   id="collasible-nav-dropdown"
@@ -116,16 +150,17 @@ useEffect(() => {
                     Logout
                   </NavDropdown.Item>
                 </NavDropdown>
-                <Nav.Link href="/login" onClick={() => dispatch(logout())}> Logout </Nav.Link>
+                {/* <Nav.Link href="/login" onClick={() => dispatch(logout())}> Logout </Nav.Link> */}
               </>
             ) : userInfo.name && userInfo.isAdmin === true ? (
               <LinkContainer to="/admin/orders">
                 <Nav.Link>
-                <i class="bi bi-person-badge-fill"></i> {userInfo.name}
+                  <i class="bi bi-person-badge-fill"></i> {userInfo.name}
                   {/* red dot for inform admin that there are chat msg from cust.  */}
-                  {messageReceived && <span className="position-absolute top-1 start-10 translate-middle p-2 bg-danger border border-light rounded-circle"></span>}
+                  {messageReceived && (
+                    <span className="position-absolute top-1 start-10 translate-middle p-2 bg-danger border border-light rounded-circle"></span>
+                  )}
                 </Nav.Link>
-                
               </LinkContainer>
             ) : (
               <>
@@ -133,7 +168,6 @@ useEffect(() => {
                 <Nav.Link href="/register">Register </Nav.Link>
               </>
             )}
-            
           </Nav>
         </Navbar.Collapse>
       </Container>
