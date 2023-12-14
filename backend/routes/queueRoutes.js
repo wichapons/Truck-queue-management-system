@@ -19,8 +19,9 @@ router.use(verifyAuthToken.verifyIsAdmin)
 router.post("/send-message/:id", queueController.sendLineNotification);
 router.get("/:productType", queueController.getAllQueue);
 router.post("/create", queueController.createNewQueue);
-router.put("/close/:id", queueController.closeQueue);
+router.put("/close/:id", queueController.checkIn);
 router.put("/update-docknumber/:id", queueController.updateDockingNumber);
+router.put("/checkout/:id",queueController.checkOut)
 //router.get("/analysis/:date", orderController.getOrderForAnalysis);
 
 module.exports = router

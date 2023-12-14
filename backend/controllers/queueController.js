@@ -153,7 +153,7 @@ const createNewQueue = async (req, res, next) => {
   }
 };
 
-const closeQueue = async (req, res, next) => {
+const checkIn = async (req, res, next) => {
   try {
     const queueID = req.params.id;
     // decode token to get user id
@@ -165,13 +165,42 @@ const closeQueue = async (req, res, next) => {
       { _id: new ObjectId(queueID) },
       {
         isCheckin: true,
-        queueCloseByUserID: req.user._id,
-        queueCloseByUserName: req.user.name,
+        checkInByUserID: req.user._id,
+        checkInByUserName: req.user.name,
+        checkInTime: new Date()
       }
     );
 
     res.status(200).json({
-      message: "Queue closed",
+      message: "Queue checked in successfully",
+      queueId: queue._id,
+      supcode: queue.supplierCode,
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+const checkOut = async (req, res, next) => {
+  try {
+    const queueID = req.params.id;
+    // decode token to get user id
+    const token = req.cookies.access_token;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    req.user = decoded;
+    //update queue checkin status to true and add user id
+    const queue = await Queue.findOneAndUpdate(
+      { _id: new ObjectId(queueID) },
+      {
+        isCheckOut: true,
+        checkOutByUserID: req.user._id,
+        checkOutByUserName: req.user.name,
+        checkOutTime: new Date()
+      }
+    );
+
+    res.status(200).json({
+      message: "Queue checked out successfully",
       queueId: queue._id,
       supcode: queue.supplierCode,
     });
@@ -202,6 +231,7 @@ module.exports = {
   sendLineNotification: sendLineNotification,
   getAllQueue: getAllQueue,
   createNewQueue: createNewQueue,
-  closeQueue: closeQueue,
+  checkIn: checkIn,
   updateDockingNumber: updateDockingNumber,
+  checkOut: checkOut
 };
