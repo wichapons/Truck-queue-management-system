@@ -13,7 +13,6 @@ const ProtectedRoutesComponents = ({ isAdminPage }) => {
     axios
       .get("/api/get-token")
       .then((res) => {
-        console.log("Successful response:", res);
         if (res.data) {
           setIsAuth(res.data.token);
           setIsAdmin(res.data.isAdmin);
