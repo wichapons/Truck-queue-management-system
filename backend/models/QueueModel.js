@@ -46,11 +46,32 @@ const queueSchema = mongoose.Schema({
         required: true,
         default: false
     },
-    queueCloseByUserID: {
+    checkInTime:{
+        type: Date,
+        default: null
+    },
+    checkInByUserID: {
         type: String,
         default: null
     },
-    queueCloseByUserName: {
+    checkInByUserName: {
+        type: String,
+        default: null
+    },
+    isCheckOut: {
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    checkOutTime:{
+        type: Date,
+        default: null
+    },
+    checkOutByUserID: {
+        type: String,
+        default: null
+    },
+    checkOutByUserName: {
         type: String,
         default: null
     },
