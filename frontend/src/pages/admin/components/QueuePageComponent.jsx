@@ -35,7 +35,8 @@ const QueuePageComponent = ({ getQueue }) => {
               (a, b) => a.queueNumber - b.queueNumber
             );
             setQueues(sortedQueues);
-            setRefresh(!refresh);
+            
+            
           })
           .catch((error) => {
             console.error(
