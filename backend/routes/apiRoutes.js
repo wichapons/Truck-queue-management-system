@@ -6,6 +6,10 @@ const queueRoutes = require("./queueRoutes");
 const supplierRoutes = require("./supplierRoutes");
 const verifyAccessToken = require("../utils/verifyAccessToken")
 
+app.get("/ping",(req,res)=>{
+  return res.status(200).send("pong!")
+})
+
 app.get("/get-token", (req, res) => {
   verifyAccessToken(req, res);
 });
