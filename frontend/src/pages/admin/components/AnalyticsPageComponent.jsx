@@ -98,7 +98,7 @@ const AdminAnalyticsPageComponent = ({
 
   useEffect(() => {
     // Create a socket instance
-    const socket = socketIOClient("https://topazio-shop-backend.onrender.com");
+    const socket = socketIOClient("https://truck-queue-management-uat-backend.onrender.com");
     
     // Get today's date
     let today = new Date().toDateString();

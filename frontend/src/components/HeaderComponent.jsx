@@ -63,7 +63,7 @@ const HeaderComponent = () => {
   useEffect(() => {
     if (userInfo.isAdmin) {
       let audio = new Audio("/audio/chat-msg.mp3");
-      const socket = io("https://topazio-shop-backend.onrender.com");
+      const socket = io("https://truck-queue-management-uat-backend.onrender.com");
       //send signal via socket io then admin is online, random number is for telling server how many admins are currently online
       socket.emit(
         "admin connected with server",
