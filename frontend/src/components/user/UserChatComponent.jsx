@@ -16,6 +16,7 @@ const userInfo = useSelector((state) => state.userRegisterLogin.userInfo);
 
 
 useEffect(() => {
+  /*
   // Establish a socket connection only for non-admin users
   if (!userInfo.isAdmin) {
     setReconnect(false);
@@ -26,7 +27,8 @@ useEffect(() => {
     socket.on("no admin", (msg) => {
       setChat((chat) => {
           return [...chat, { admin: "All admins are offline, please leave your messages and we will get back to you soon" }];
-      })
+      }
+      )
   })
     // Listen for "server sends message from admin to client" event
     socket.on("server sends message from admin to client", (msg) => {
@@ -52,6 +54,7 @@ useEffect(() => {
       socket.disconnect();
     };
   }
+  */
 }, [userInfo.isAdmin]);
 
 

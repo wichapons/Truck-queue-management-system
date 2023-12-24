@@ -61,6 +61,7 @@ const HeaderComponent = () => {
 
   //get msg from socketio server
   useEffect(() => {
+    /*
     if (userInfo.isAdmin) {
       let audio = new Audio("/audio/chat-msg.mp3");
       const socket = io("https://truck-queue-management-uat-backend.onrender.com");
@@ -84,6 +85,7 @@ const HeaderComponent = () => {
       });
       return () => socket.disconnect();
     }
+    */
   }, [userInfo.isAdmin]);
 
   return (
