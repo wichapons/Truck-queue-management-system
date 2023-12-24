@@ -79,10 +79,10 @@ const getAllQueue = async (req, res, next) => {
   }
 
   if (productType === "All") {
-    let queueData = await Queue.find();
+    let queueData = await Queue.find({isCheckOut:false}).sort({ queueNumber: 1 });
     res.status(200).json(queueData);
   } else {
-    let queueData = await Queue.find({ goodsType: productType });
+    let queueData = await Queue.find({ goodsType: productType,isCheckOut:false });
     res.status(200).json(queueData);
   }
 };
@@ -95,7 +95,7 @@ const createNewQueue = async (req, res, next) => {
     req.user = decoded;
 
     // Extract supplier-related information from the request body
-    const { suppliers, goodstype, queuenumber } = req.body;
+    const { suppliers, goodstype, queuenumber,isRTV } = req.body;
 
     /*
     //check if supplierCode and queueNumber is not empty
@@ -120,7 +120,7 @@ const createNewQueue = async (req, res, next) => {
     queue.goodsType = goodstype;
     queue.queueNumber = queuenumber;
     queue.queueCreatedBy = req.user.name;
-
+    queue.isRTV = isRTV;
     /*
 
     //check if supplierCode and queueNumber is number
@@ -181,6 +181,32 @@ const checkIn = async (req, res, next) => {
   }
 };
 
+const checkInRTV = async (req, res, next) => {
+  try {
+    const queueID = req.params.id;
+    // decode token to get user id
+    const token = req.cookies.access_token;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    req.user = decoded;
+    //update queue checkin status to true and add user id
+    const queue = await Queue.findOneAndUpdate(
+      { _id: new ObjectId(queueID) },
+      {
+        RTVCheckinByUserName: req.user.name,
+        RTVCheckinTime: new Date()
+      }
+    );
+    res.status(200).json({
+      message: "RTV Queue checked in successfully",
+      queueId: queue._id,
+      supcode: queue.supplierCode,
+    });
+}
+  catch (err) {
+    next(err);
+  }
+}
+
 const checkOut = async (req, res, next) => {
   try {
     const queueID = req.params.id;
@@ -209,6 +235,33 @@ const checkOut = async (req, res, next) => {
   }
 };
 
+const checkOutRTV = async (req, res, next) => {
+  try {
+    const queueID = req.params.id;
+    // decode token to get user id
+    const token = req.cookies.access_token;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    req.user = decoded;
+    //update queue checkin status to true and add user id
+    const queue = await Queue.findOneAndUpdate(
+      { _id: new ObjectId(queueID) },
+      {
+        RTVCheckOutByUserName: req.user.name,
+        RTVCheckOutTime: new Date()
+      }
+    );
+
+    res.status(200).json({
+      message: "RTV Queue checked out successfully",
+      queueId: queue._id,
+      supcode: queue.supplierCode,
+    })
+}
+  catch (err) {
+    next(err);
+  }
+}
+
 const updateDockingNumber = async (req, res, next) => {
   try {
     const queueID = req.params.id;
@@ -227,11 +280,24 @@ const updateDockingNumber = async (req, res, next) => {
   }
 };
 
+const getRTVQueue = async (req, res, next) => {
+  try {
+    let queueData = await Queue.find({ isRTV: true , isCheckin: true, RTVCheckOutTime: null}).sort({ queueNumber: 1 });
+    res.status(200).json(queueData);
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   sendLineNotification: sendLineNotification,
   getAllQueue: getAllQueue,
   createNewQueue: createNewQueue,
   checkIn: checkIn,
   updateDockingNumber: updateDockingNumber,
-  checkOut: checkOut
+  checkOut: checkOut,
+  getRTVQueue:getRTVQueue,
+  checkInRTV:checkInRTV,
+  checkOutRTV:checkOutRTV
+
 };
