@@ -31,11 +31,12 @@ const QueuePageComponent = ({ getQueue }) => {
         const queues = await getQueue(tokenResponse.data.productType);
 
         // Sort by queue number ASC
-        const sortedQueues = [...queues].sort(
-          (a, b) => a.queueNumber - b.queueNumber
-        );
+        // const sortedQueues = [...queues].sort(
+        //   (a, b) => a.queueNumber - b.queueNumber
+        // );
+        
 
-        setQueues(sortedQueues);
+        setQueues(queues);
       } catch (error) {
         console.error(
           error.response.data.message
