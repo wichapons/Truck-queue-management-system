@@ -124,15 +124,15 @@ const HeaderComponent = () => {
             {userInfo.name && userInfo.isAdmin === true ? (
               <>
                 <Nav className="justify-content-center">
-                  <LinkContainer to="/admin/queue">
+                  <LinkContainer to="/admin/queue/history">
                     <Nav.Link className="active">History</Nav.Link>
                   </LinkContainer>
-                  <LinkContainer to="/admin/queue">
+                  <LinkContainer to="/admin/queue/rtv">
                     <Nav.Link className="active">RTV</Nav.Link>
                   </LinkContainer>
-                  <LinkContainer to="/admin/users">
+                  {/* <LinkContainer to="/admin/users">
                     <Nav.Link className="active">User List</Nav.Link>
-                  </LinkContainer>
+                  </LinkContainer> */}
 
                 </Nav>
 
@@ -144,6 +144,7 @@ const HeaderComponent = () => {
                     My Orders
                   </NavDropdown.Item>
                   <NavDropdown.Item href="/user">Profile</NavDropdown.Item> */}
+                  <NavDropdown.Item href="/admin/users">User List</NavDropdown.Item>
                   <NavDropdown.Divider />
                   <NavDropdown.Item
                     href="/login"
