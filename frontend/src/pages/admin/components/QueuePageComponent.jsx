@@ -18,21 +18,23 @@ const QueuePageComponent = ({ getQueue }) => {
       try {
         // Get productType from user info
         const tokenResponse = await axios.get("/api/get-token");
-        
+
         if (!tokenResponse.data) {
           alert("Cannot get access token");
           return;
         }
-  
+
         setProductType(tokenResponse.data.productType);
         setLoading(true);
-  
+
         // Fetch data from DB based on product type
         const queues = await getQueue(tokenResponse.data.productType);
-  
+
         // Sort by queue number ASC
-        const sortedQueues = [...queues].sort((a, b) => a.queueNumber - b.queueNumber);
-        
+        const sortedQueues = [...queues].sort(
+          (a, b) => a.queueNumber - b.queueNumber
+        );
+
         setQueues(sortedQueues);
       } catch (error) {
         console.error(
@@ -129,7 +131,8 @@ const QueuePageComponent = ({ getQueue }) => {
               <th>เรียกคิว</th>
               <th>ครั้งที่</th>
               <th>เวลา</th>
-              <th>Check in / Out</th>
+              <th>Check in</th>
+              <th>Check Out</th>
             </tr>
           </thead>
           {loading ? (
@@ -141,7 +144,7 @@ const QueuePageComponent = ({ getQueue }) => {
                     <td>{queue.queueNumber}</td>
                     <td>
                       {queue.suppliers.map((supplier, index2) => {
-                        index2 = index2 + 200;
+                        index2 = index2 + 20000;
                         return (
                           <div key={index2}>
                             {supplier.supplierCode}
@@ -152,7 +155,7 @@ const QueuePageComponent = ({ getQueue }) => {
                     </td>
                     <td>
                       {queue.suppliers.map((supplier, index3) => {
-                        index3 = index3 + 300;
+                        index3 = index3 + 30000;
                         return (
                           <div key={index3}>
                             {supplier.supplierName}
@@ -239,17 +242,19 @@ const QueuePageComponent = ({ getQueue }) => {
                     </td>
                     <td>
                       {queue.isCheckin ? (
-                        /* CHECK IN BUTTON */
-                        <Button
-                          variant="danger"
-                          className="btn-sm"
-                          onClick={() => checkOut(queue._id, queue.isCheckin)}
-                          disabled={queue.isCheckOut}
-                        >
-                         <i className="bi bi-door-closed"></i>
-                        </Button>
+                        // CHECK IN TIME
+                        queue.checkInTime ? (
+                          new Date(queue.checkInTime).toLocaleString("en-GB", {
+                            timeZone: "Asia/Bangkok",
+                            hour12: false,
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          }) + " น."
+                        ) : (
+                          "N/A"
+                        )
                       ) : (
-                        /* CHECK OUT BUTTON */
+                        // CHECK IN BUTTON
                         <Button
                           variant="success"
                           className="btn-sm"
@@ -258,9 +263,41 @@ const QueuePageComponent = ({ getQueue }) => {
                           }
                           disabled={queue.isCheckin}
                         >
-                          <i className="bi bi-check-circle"></i>
+                          {/* <i className="bi bi-check-circle"></i> */}
+                          Check In{" "}
                         </Button>
                       )}
+                    </td>
+
+                    <td>
+                      {queue.isCheckOut
+                        ? // CHECK OUT TIME
+                          queue.checkOutTime
+                          ? new Date(queue.checkOutTime).toLocaleString(
+                              "en-GB",
+                              {
+                                timeZone: "Asia/Bangkok",
+                                hour12: false,
+                                hour: "2-digit",
+                                minute: "2-digit",
+                              }
+                            )
+                          : // Render nothing if checkOutTime is not available
+                            ""
+                        : // CHECK OUT BUTTON
+                          queue.isCheckin && (
+                            <Button
+                              variant="danger"
+                              className="btn-sm"
+                              onClick={() =>
+                                checkOut(queue._id, queue.isCheckin)
+                              }
+                              disabled={queue.isCheckOut}
+                            >
+                              Check Out 
+                              {/* <i className="bi bi-door-closed"></i> */}
+                            </Button>
+                          )}
                     </td>
                   </tr>
                 ) : (
