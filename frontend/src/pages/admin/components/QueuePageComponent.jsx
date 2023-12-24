@@ -14,42 +14,36 @@ const QueuePageComponent = ({ getQueue }) => {
   const [productType, setProductType] = useState(null);
 
   useEffect(() => {
-    // Get productType from user info
-    axios
-      .get("/api/get-token")
-      .then((res) => {
-        if (res.data) {
-          setProductType(res.data.productType);
-        } else {
+    const fetchData = async () => {
+      try {
+        // Get productType from user info
+        const tokenResponse = await axios.get("/api/get-token");
+        
+        if (!tokenResponse.data) {
           alert("Cannot get access token");
           return;
         }
-      })
-      .then(() => {
+  
+        setProductType(tokenResponse.data.productType);
         setLoading(true);
+  
         // Fetch data from DB based on product type
-        getQueue(productType)
-          .then((queues) => {
-            //sort by queue number ASC
-            const sortedQueues = [...queues].sort(
-              (a, b) => a.queueNumber - b.queueNumber
-            );
-            setQueues(sortedQueues);
-            
-            
-          })
-          .catch((error) => {
-            console.error(
-              error.response.data.message
-                ? error.response.data.message
-                : error.response.data
-            );
-          });
-      })
-      .catch((error) => {
-        console.error("Error fetching access token:", error);
-      });
-  }, [refresh, productType]);
+        const queues = await getQueue(tokenResponse.data.productType);
+  
+        // Sort by queue number ASC
+        const sortedQueues = [...queues].sort((a, b) => a.queueNumber - b.queueNumber);
+        
+        setQueues(sortedQueues);
+      } catch (error) {
+        console.error(
+          error.response.data.message
+            ? error.response.data.message
+            : error.response.data
+        );
+      }
+    };
+    fetchData();
+  }, [refresh]);
 
   const sendLineNotification = async (queueID, dockingDoorNumber) => {
     setIsSending(true);
