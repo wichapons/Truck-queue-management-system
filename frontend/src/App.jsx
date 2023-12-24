@@ -26,6 +26,7 @@ import AdminQueuePage from "./pages/admin/AdminQueuePage";
 import AdminChatsPage from "./pages/admin/AdminChatsPage";
 import AdminAnalyticsPage from "./pages/admin/AdminAnalyticsPage";
 import AdminCreateQueuePage from "./pages/admin/AdminCreateQueuePage";
+import AdminRTVQueuePage from "./pages/admin/AdminRTVQueuePage";
 
 
 function App() {
@@ -58,6 +59,7 @@ function App() {
           <Route path="/admin/queue" element={<AdminQueuePage />} />
           <Route path="/admin/chats" element={<AdminChatsPage />} />
           <Route path="/admin/analytics" element={<AdminAnalyticsPage />} />
+          <Route path="/admin/queue/rtv" element={<AdminRTVQueuePage />} />
           <Route
             path="/admin/*"
             element={
