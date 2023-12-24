@@ -75,6 +75,28 @@ const queueSchema = mongoose.Schema({
         type: String,
         default: null
     },
+    isRTV:{
+        type: Boolean,
+        required: true,
+        default: false
+    },
+    RTVCheckinTime:{
+        type: Date,
+        default: null
+    },
+    RTVCheckinByUserName: {
+        type: String,
+        default: null
+    },
+    RTVCheckOutByUserName:{
+        type: String,
+        default: null
+    },
+    RTVCheckOutTime:{
+        type: Date,
+        default: null
+    }
+
 }, {
     timestamps: true,
 })
