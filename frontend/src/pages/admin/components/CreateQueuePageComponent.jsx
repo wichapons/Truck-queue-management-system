@@ -65,11 +65,11 @@ const AdminCreateProductPageComponent = () => {
       supplierCode: element.supcode.value,
       supplierName: element.supName.value,
     })
-
     const formInputs = {
       suppliers,
       goodstype: element.goodstype.value,
       queuenumber: element.queuenumber.value,
+      isRTV: element.rtv.checked // Set isRTV to true if the checkbox is checked, otherwise false
     };
     try {
       setLoading(true);
