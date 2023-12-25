@@ -289,6 +289,40 @@ const getRTVQueue = async (req, res, next) => {
   }
 }
 
+const getQueueHistory = async (req, res, next) => {
+  try {
+    let startDate  = "";
+    let endDate = "";
+    if(req.body.startDate){
+      startDate = req.body.startDate;
+      endDate = req.body.endDate;
+    }else{
+       startDate = new Date().toISOString().split('T')[0];
+       endDate = new Date().toISOString().split('T')[0];
+    }
+   
+    // Parse the start and end dates, assuming they are in ISO format (YYYY-MM-DD)
+    const startDateTime = new Date(`${startDate}T00:00:00Z`);
+    const endDateTime = new Date(`${endDate}T23:59:59Z`);
+
+    // Adjust dates to GMT+7
+    startDateTime.setUTCHours(startDateTime.getUTCHours() + 7);
+    
+    endDateTime.setUTCHours(endDateTime.getUTCHours() + 7);
+    console.log(startDateTime);
+    console.log(endDateTime);
+    let queueData = await Queue.find({
+      isCheckOut: true,
+      isRTV: false,
+      createdAt: { $gte: startDateTime, $lt: endDateTime },
+    }).sort({ queueNumber: 1 });
+
+    res.status(200).json(queueData);
+  } catch (err) {
+    next(err);
+  }
+}
+
 module.exports = {
   sendLineNotification: sendLineNotification,
   getAllQueue: getAllQueue,
@@ -298,6 +332,6 @@ module.exports = {
   checkOut: checkOut,
   getRTVQueue:getRTVQueue,
   checkInRTV:checkInRTV,
-  checkOutRTV:checkOutRTV
-
+  checkOutRTV:checkOutRTV,
+  getQueueHistory:getQueueHistory
 };

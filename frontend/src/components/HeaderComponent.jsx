@@ -124,6 +124,9 @@ const HeaderComponent = () => {
             {userInfo.name && userInfo.isAdmin === true ? (
               <>
                 <Nav className="justify-content-center">
+                <LinkContainer to="/admin/queue">
+                    <Nav.Link className="active">Home</Nav.Link>
+                  </LinkContainer>
                   <LinkContainer to="/admin/queue/history">
                     <Nav.Link className="active">History</Nav.Link>
                   </LinkContainer>
