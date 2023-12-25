@@ -12,6 +12,8 @@ const QueuePageComponent = ({ getQueue }) => {
   const [loading, setLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [productType, setProductType] = useState(null);
+  const [lineNotiLoadingStates, setLineNotiLoadingStates] = useState({});
+  const [loadingStates, setLoadingStates] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -36,42 +38,50 @@ const QueuePageComponent = ({ getQueue }) => {
         // );
         setQueues(queues);
       } catch (error) {
-        console.error(
-          error.response.data.message
-            ? error.response.data.message
-            : error.response.data
-        );
+        if(error.response.status === 401){
+          //redirect to login page
+          window.location.href = "/login";
+        }
       }
     };
     fetchData();
   }, [refresh]);
 
   const sendLineNotification = async (queueID, dockingDoorNumber) => {
-    setIsSending(true);
+    setLineNotiLoadingStates((prevState) => ({
+      ...prevState,
+      [queueID]: true,
+    }));
     if (!dockingDoorNumber) {
       alert("กรุณากรอกเลขประตูที่เรียกคิว ก่อนที่จะเรียก Vendor เข้าประตูค่ะ");
       setIsSending(false);
       return "cancel";
     }
     const response = await axios.post(`/api/queue/send-message/${queueID}`);
-    setIsSending(false);
+    setLineNotiLoadingStates((prevState) => ({
+      ...prevState,
+      [queueID]: false,
+    }));
     setRefresh(!refresh);
     return response.data;
   };
 
   const checkIn = async (queueID, dockingDoorNumber) => {
+    setLoadingStates((prevState) => ({ ...prevState, [queueID]: true }));
     if (!dockingDoorNumber) {
       alert("กรุณาเลือกประตูที่เรียกคิว ก่อนที่จะปิดงานค่ะ");
       return "cancel";
     }
     const response = await axios.put(`/api/queue/rtv/checkin/${queueID}`);
     // Set the specific button to be disabled
+    setLoadingStates((prevState) => ({ ...prevState, [queueID]: false }));
     setRefresh(!refresh);
 
     return response.data;
   };
 
   const checkOut = async (queueID, isCheckin) => {
+    setLoadingStates((prevState) => ({ ...prevState, [queueID]: true }));
     if (!isCheckin) {
       alert("กรุณากด Check in ก่อน Check out ค่ะ");
       return "cancel";
@@ -80,6 +90,7 @@ const QueuePageComponent = ({ getQueue }) => {
     if (window.confirm("ยืนยันการปิดงาน?")) {
       const response = await axios.put(`/api/queue/rtv/checkout/${queueID}`);
       // Set the specific button to be disabled
+      setLoadingStates((prevState) => ({ ...prevState, [queueID]: false }));
       setRefresh(!refresh);
       return response.data;
     } else {
@@ -135,7 +146,7 @@ const QueuePageComponent = ({ getQueue }) => {
             </tr>
           </thead>
           {loading ? (
-            (queues.length > 0) ? (
+            queues.length > 0 ? (
               <tbody style={{ textAlign: "center" }}>
                 {queues.map((queue, idx) => {
                   idx++;
@@ -210,9 +221,9 @@ const QueuePageComponent = ({ getQueue }) => {
                               queue.dockingDoorNumber
                             )
                           }
-                          disabled={isSending}
+                          disabled={lineNotiLoadingStates[queue._id]}
                         >
-                          {isSending ? (
+                          {lineNotiLoadingStates[queue._id] ? (
                             <Spinner
                               as="span"
                               animation="border"
@@ -270,9 +281,20 @@ const QueuePageComponent = ({ getQueue }) => {
                             }
                             //BY PASS NO NEED TO WAIT FOR CHECK OUT AT FIRST STAGE
                             //disabled={queue.isCheckOut}
+                            disabled={loadingStates[queue._id]}
                           >
+                            {loadingStates[queue._id] ? (
+                              <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                              />
+                            ) : (
+                              "Check In"
+                            )}
                             {/* <i className="bi bi-check-circle"></i> */}
-                            Check In{" "}
                           </Button>
                         )}
                       </td>
@@ -297,9 +319,23 @@ const QueuePageComponent = ({ getQueue }) => {
                                 onClick={() =>
                                   checkOut(queue._id, queue.RTVCheckinTime)
                                 }
-                                disabled={queue.RTVCheckOutTime}
+                                disabled={
+                                  queue.RTVCheckOutTime ||
+                                  !queue.isCheckin ||
+                                  loadingStates[queue._id]
+                                }
                               >
-                                Check Out
+                                {loadingStates[queue._id] ? (
+                                  <Spinner
+                                    as="span"
+                                    animation="border"
+                                    size="sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                  />
+                                ) : (
+                                  "Check Out"
+                                )}
                                 {/* <i className="bi bi-door-closed"></i> */}
                               </Button>
                             )}

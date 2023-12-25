@@ -6,12 +6,15 @@ import axios from "axios";
 import { ColorRing } from "react-loader-spinner";
 import Spinner from "react-bootstrap/Spinner";
 
+
 const QueuePageComponent = ({ getQueue }) => {
   const [queues, setQueues] = useState([]);
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(false);
   const [isSending, setIsSending] = useState(false);
   const [productType, setProductType] = useState(null);
+  const [lineNotiLoadingStates, setLineNotiLoadingStates] = useState({});
+  const [loadingStates, setLoadingStates] = useState({});
 
   useEffect(() => {
     const fetchData = async () => {
@@ -23,6 +26,7 @@ const QueuePageComponent = ({ getQueue }) => {
           alert("Cannot get access token");
           return;
         }
+        console.log(tokenResponse);
 
         setProductType(tokenResponse.data.productType);
         setLoading(true);
@@ -34,46 +38,57 @@ const QueuePageComponent = ({ getQueue }) => {
         // const sortedQueues = [...queues].sort(
         //   (a, b) => a.queueNumber - b.queueNumber
         // );
-        
 
         setQueues(queues);
       } catch (error) {
-        console.error(
-          error.response.data.message
-            ? error.response.data.message
-            : error.response.data
-        );
+        if(error.response.status === 401){
+          //redirect to login page
+          window.location.href = "/login";
+        }
       }
     };
     fetchData();
   }, [refresh]);
 
   const sendLineNotification = async (queueID, dockingDoorNumber) => {
-    setIsSending(true);
+    // Set loading state for the specific row
+    setLineNotiLoadingStates((prevState) => ({
+      ...prevState,
+      [queueID]: true,
+    }));
+
+    //setIsSending(true);
     if (!dockingDoorNumber) {
       alert("กรุณากรอกเลขประตูที่เรียกคิว ก่อนที่จะเรียก Vendor เข้าประตูค่ะ");
-      setIsSending(false);
+      //setIsSending(false);
       return "cancel";
     }
     const response = await axios.post(`/api/queue/send-message/${queueID}`);
-    setIsSending(false);
+    //setIsSending(false);
+    setLineNotiLoadingStates((prevState) => ({
+      ...prevState,
+      [queueID]: false,
+    }));
     setRefresh(!refresh);
     return response.data;
   };
 
   const closeQueue = async (queueID, dockingDoorNumber) => {
+    setLoadingStates((prevState) => ({ ...prevState, [queueID]: true }));
     if (!dockingDoorNumber) {
       alert("กรุณาเลือกประตูที่เรียกคิว ก่อนที่จะปิดงานค่ะ");
       return "cancel";
     }
     const response = await axios.put(`/api/queue/close/${queueID}`);
     // Set the specific button to be disabled
+    setLoadingStates((prevState) => ({ ...prevState, [queueID]: false }));
     setRefresh(!refresh);
 
     return response.data;
   };
 
   const checkOut = async (queueID, isCheckin) => {
+    setLoadingStates((prevState) => ({ ...prevState, [queueID]: true }));
     if (!isCheckin) {
       alert("กรุณากด Check in ก่อน Check out ค่ะ");
       return "cancel";
@@ -82,6 +97,7 @@ const QueuePageComponent = ({ getQueue }) => {
     if (window.confirm("ยืนยันการปิดงาน?")) {
       const response = await axios.put(`/api/queue/checkout/${queueID}`);
       // Set the specific button to be disabled
+      setLoadingStates((prevState) => ({ ...prevState, [queueID]: false }));
       setRefresh(!refresh);
       return response.data;
     } else {
@@ -208,9 +224,9 @@ const QueuePageComponent = ({ getQueue }) => {
                             queue.dockingDoorNumber
                           )
                         }
-                        disabled={isSending}
+                        disabled={lineNotiLoadingStates[queue._id]}
                       >
-                        {isSending ? (
+                        {lineNotiLoadingStates[queue._id] ? (
                           <Spinner
                             as="span"
                             animation="border"
@@ -262,10 +278,20 @@ const QueuePageComponent = ({ getQueue }) => {
                           onClick={() =>
                             closeQueue(queue._id, queue.dockingDoorNumber)
                           }
-                          disabled={queue.isCheckin}
+                          disabled={queue.isCheckin || loadingStates[queue._id]}
                         >
+                          {loadingStates[queue._id] ? (
+                            <Spinner
+                              as="span"
+                              animation="border"
+                              size="sm"
+                              role="status"
+                              aria-hidden="true"
+                            />
+                          ) : (
+                            "Check In"
+                          )}
                           {/* <i className="bi bi-check-circle"></i> */}
-                          Check In{" "}
                         </Button>
                       )}
                     </td>
@@ -293,9 +319,23 @@ const QueuePageComponent = ({ getQueue }) => {
                               onClick={() =>
                                 checkOut(queue._id, queue.isCheckin)
                               }
-                              disabled={queue.isCheckOut}
+                              disabled={
+                                queue.isCheckOut ||
+                                !queue.isCheckin ||
+                                loadingStates[queue._id]
+                              }
                             >
-                              Check Out 
+                              {loadingStates[queue._id] ? (
+                                <Spinner
+                                  as="span"
+                                  animation="border"
+                                  size="sm"
+                                  role="status"
+                                  aria-hidden="true"
+                                />
+                              ) : (
+                                "Check Out"
+                              )}
                               {/* <i className="bi bi-door-closed"></i> */}
                             </Button>
                           )}
