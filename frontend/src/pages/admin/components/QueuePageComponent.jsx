@@ -26,7 +26,6 @@ const QueuePageComponent = ({ getQueue }) => {
           alert("Cannot get access token");
           return;
         }
-        console.log(tokenResponse);
 
         setProductType(tokenResponse.data.productType);
         setLoading(true);
