@@ -8,6 +8,7 @@ import Spinner from "react-bootstrap/Spinner";
 
 
 const QueuePageComponent = ({ getQueue }) => {
+  let countdownTime = 180;
   const [queues, setQueues] = useState([]);
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -15,6 +16,7 @@ const QueuePageComponent = ({ getQueue }) => {
   const [productType, setProductType] = useState(null);
   const [lineNotiLoadingStates, setLineNotiLoadingStates] = useState({});
   const [loadingStates, setLoadingStates] = useState({});
+  const [countdown, setCountdown] = useState(countdownTime);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -48,6 +50,28 @@ const QueuePageComponent = ({ getQueue }) => {
     };
     fetchData();
   }, [refresh]);
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      // Decrease the countdown
+      setCountdown((prevCountdown) => (prevCountdown > 0 ? prevCountdown - 1 : countdownTime));
+    }, 1000);
+
+    // Clear the interval and trigger re-render when countdown reaches 0
+    if (countdown === 0) {
+      clearInterval(intervalId);
+      setCountdown(countdownTime); // Reset countdown
+      setRefresh(!refresh);
+    }
+
+    return () => clearInterval(intervalId);
+  }, [countdown]);
+
+   // Function to refresh the page
+   const refreshPage = () => {
+    setRefresh(!refresh);
+    setCountdown(countdownTime); // Reset countdown
+  };
 
   const sendLineNotification = async (queueID, dockingDoorNumber) => {
     // Set loading state for the specific row
@@ -87,13 +111,13 @@ const QueuePageComponent = ({ getQueue }) => {
   };
 
   const checkOut = async (queueID, isCheckin) => {
-    setLoadingStates((prevState) => ({ ...prevState, [queueID]: true }));
     if (!isCheckin) {
       alert("กรุณากด Check in ก่อน Check out ค่ะ");
       return "cancel";
     }
 
     if (window.confirm("ยืนยันการปิดงาน?")) {
+      setLoadingStates((prevState) => ({ ...prevState, [queueID]: true }));
       const response = await axios.put(`/api/queue/checkout/${queueID}`);
       // Set the specific button to be disabled
       setLoadingStates((prevState) => ({ ...prevState, [queueID]: false }));
@@ -134,7 +158,10 @@ const QueuePageComponent = ({ getQueue }) => {
           </LinkContainer>
         </h2>
 
-        <p></p>
+        <div>
+      <p>Auto-refresh in {countdown} seconds <Button onClick={refreshPage} className="btn-sm btn-success"><i className="bi bi-arrow-clockwise"></i></Button></p>
+      
+    </div>
         <Table striped bordered hover responsive>
           <thead>
             <tr style={{ textAlign: "center" }}>

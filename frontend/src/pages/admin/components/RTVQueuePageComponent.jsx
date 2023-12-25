@@ -74,24 +74,27 @@ const QueuePageComponent = ({ getQueue }) => {
     }
     const response = await axios.put(`/api/queue/rtv/checkin/${queueID}`);
     // Set the specific button to be disabled
-    setLoadingStates((prevState) => ({ ...prevState, [queueID]: false }));
     setRefresh(!refresh);
+    setLoadingStates((prevState) => ({ ...prevState, [queueID]: false }));
+    
 
     return response.data;
   };
 
   const checkOut = async (queueID, isCheckin) => {
-    setLoadingStates((prevState) => ({ ...prevState, [queueID]: true }));
+    
     if (!isCheckin) {
       alert("กรุณากด Check in ก่อน Check out ค่ะ");
       return "cancel";
     }
 
     if (window.confirm("ยืนยันการปิดงาน?")) {
+      setLoadingStates((prevState) => ({ ...prevState, [queueID]: true }));                                           
       const response = await axios.put(`/api/queue/rtv/checkout/${queueID}`);
       // Set the specific button to be disabled
+      setRefresh(!refresh)
       setLoadingStates((prevState) => ({ ...prevState, [queueID]: false }));
-      setRefresh(!refresh);
+     
       return response.data;
     } else {
       return "cancel";
