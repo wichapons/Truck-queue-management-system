@@ -291,11 +291,9 @@ const getRTVQueue = async (req, res, next) => {
 
 const getQueueHistory = async (req, res, next) => {
   try {
-    let startDate  = "";
-    let endDate = "";
-    if(req.body.startDate){
-      startDate = req.body.startDate;
-      endDate = req.body.endDate;
+    if(req.query.startDate){
+      startDate = req.query.startDate;
+      endDate = req.query.endDate;
     }else{
        startDate = new Date().toISOString().split('T')[0];
        endDate = new Date().toISOString().split('T')[0];
@@ -307,18 +305,19 @@ const getQueueHistory = async (req, res, next) => {
 
     // Adjust dates to GMT+7
     startDateTime.setUTCHours(startDateTime.getUTCHours() + 7);
-    
     endDateTime.setUTCHours(endDateTime.getUTCHours() + 7);
-    console.log(startDateTime);
-    console.log(endDateTime);
+    
     let queueData = await Queue.find({
       isCheckOut: true,
       isRTV: false,
       createdAt: { $gte: startDateTime, $lt: endDateTime },
-    }).sort({ queueNumber: 1 });
+    }).sort({ createdAt:1,queueNumber: 1 });
+
+    console.log(queueData);
 
     res.status(200).json(queueData);
   } catch (err) {
+    console.log(err);
     next(err);
   }
 }

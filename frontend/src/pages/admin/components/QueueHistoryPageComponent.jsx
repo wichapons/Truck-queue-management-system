@@ -6,46 +6,32 @@ import axios from "axios";
 import { ColorRing } from "react-loader-spinner";
 import Spinner from "react-bootstrap/Spinner";
 
-const QueueHistoryPageComponent = ({ getQueue }) => {
+const QueueHistoryPageComponent = ({ getQueueHistory }) => {
   let countdownTime = 180;
+  const utcDate = new Date().toISOString().split('T')[0]; //get UTC date in yyyy-MM-dd format
+
+  //convert in to GMT+7.00 
+  const currentDateInGMT7 = new Date(utcDate);
+  currentDateInGMT7.setUTCHours(currentDateInGMT7.getUTCHours() + 7);
+  // Format the date as a string in yyyy-MM-dd format
+  const formattedDateInGMT7 = currentDateInGMT7.toISOString().split('T')[0];
+
   const [queues, setQueues] = useState([]);
   const [refresh, setRefresh] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [isSending, setIsSending] = useState(false);
   const [productType, setProductType] = useState(null);
-  const [lineNotiLoadingStates, setLineNotiLoadingStates] = useState({});
   const [loadingStates, setLoadingStates] = useState({});
   const [countdown, setCountdown] = useState(countdownTime);
+  
+  const [startDate, setStartDate] = useState(formattedDateInGMT7);
+  const [endDate, setEndDate] = useState(formattedDateInGMT7);
+
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Get productType from user info
-        const tokenResponse = await axios.get("/api/get-token");
-
-        if (!tokenResponse.data) {
-          alert("Cannot get access token");
-          return;
-        }
-
-        setProductType(tokenResponse.data.productType);
-        setLoading(true);
-
-        // Fetch data from DB based on product type
-        const queues = await getQueue(tokenResponse.data.productType);
-
-        setQueues(queues);
-      } catch (error) {
-        console.log(error);
-        if (error.response.status === 401) {
-          //redirect to login page
-          window.location.href = "/login";
-        }
-      }
-    };
     fetchData();
   }, [refresh]);
 
+  /*
   useEffect(() => {
     const intervalId = setInterval(() => {
       // Decrease the countdown
@@ -63,35 +49,43 @@ const QueueHistoryPageComponent = ({ getQueue }) => {
 
     return () => clearInterval(intervalId);
   }, [countdown]);
+  */
 
+  const fetchData = async () => {
+    try {
+      // Get productType from user info
+      const tokenResponse = await axios.get("/api/get-token");
+
+      if (!tokenResponse.data) {
+        alert("Cannot get access token");
+        return;
+      }
+
+      setProductType(tokenResponse.data.productType);
+      setLoading(true);
+
+      // Fetch data from DB based on product type
+      const queues = await getQueueHistory(startDate,endDate);
+
+      setQueues(queues);
+    } catch (error) {
+      console.log(error);
+      if (error.response.status === 401) {
+        //redirect to login page
+        window.location.href = "/login";
+      }
+    }
+  };
+
+  /*
   // Function to refresh the page
   const refreshPage = () => {
     setRefresh(!refresh);
     setCountdown(countdownTime); // Reset countdown
   };
+  */
 
-  const sendLineNotification = async (queueID, dockingDoorNumber) => {
-    // Set loading state for the specific row
-    setLineNotiLoadingStates((prevState) => ({
-      ...prevState,
-      [queueID]: true,
-    }));
 
-    //setIsSending(true);
-    if (!dockingDoorNumber) {
-      alert("กรุณากรอกเลขประตูที่เรียกคิว ก่อนที่จะเรียก Vendor เข้าประตูค่ะ");
-      //setIsSending(false);
-      return "cancel";
-    }
-    const response = await axios.post(`/api/queue/send-message/${queueID}`);
-    //setIsSending(false);
-    setLineNotiLoadingStates((prevState) => ({
-      ...prevState,
-      [queueID]: false,
-    }));
-    setRefresh(!refresh);
-    return response.data;
-  };
 
   const closeQueue = async (queueID, dockingDoorNumber) => {
     setLoadingStates((prevState) => ({ ...prevState, [queueID]: true }));
@@ -125,21 +119,20 @@ const QueueHistoryPageComponent = ({ getQueue }) => {
     }
   };
 
-  const assignDockingDoor = async (queueID) => {
-    //show alert with input field
-    const dockingDoorNumber = prompt("กรุณากรอกเลขประตูที่เรียกคิว");
+  const handleStartDateChange = (date) => {
+    setStartDate(date);
+  };
 
-    // check dockingDoorNumber is not empty
-    if (dockingDoorNumber) {
-      const response = await axios.put(
-        `/api/queue/update-docknumber/${queueID}`,
-        { dockingNumber: dockingDoorNumber }
-      );
-      setRefresh(!refresh);
-      return response.data;
-    } else {
-      return "cancel";
-    }
+  const handleEndDateChange = (date) => {
+    setEndDate(date);
+  };
+
+  const handleFilterButtonClick = () => {
+    // Perform actions based on the selected start and end dates
+    // For example, you can filter the data using these dates
+    console.log("Start Date:", startDate);
+    console.log("End Date:", endDate);
+    fetchData();
   };
 
   return (
@@ -148,20 +141,40 @@ const QueueHistoryPageComponent = ({ getQueue }) => {
         <AdminLinksComponent />
       </Col> */}
       <Col md={12}>
-        <h2 style={{ margin: "auto" }}>
+      <h2 style={{ margin: "auto" }}>
           History{" "}
-          <LinkContainer to="/admin/create-new-queue">
-            <Button variant="warning">Add Queue</Button>
-          </LinkContainer>
+          {/* Add input start date and end date for filter */}
+          
         </h2>
+        <p></p>
+        <div>
+            <label>Start Date:</label>
+            {" "}
+            <input
+              type="date"
+              value={startDate}
+              onChange={(e) => handleStartDateChange(e.target.value)}
+            />
+            <label style={{ marginLeft: "1rem" }}>End Date: </label>{" "}
+            <input
+              type="date"
+              value={endDate}
+              onChange={(e) => handleEndDateChange(e.target.value)}
+            />
+            {" "}
+            <Button variant="warning btn-sm" onClick={handleFilterButtonClick}>
+              Search
+            </Button>
+          </div>
 
         <div>
-          <p>
+        <p></p>
+          {/* <p>
             Auto-refresh in {countdown} seconds{" "}
             <Button onClick={refreshPage} className="btn-sm btn-success">
               <i className="bi bi-arrow-clockwise"></i>
             </Button>
-          </p>
+          </p> */}
         </div>
         <Table striped bordered hover responsive>
           <thead>
