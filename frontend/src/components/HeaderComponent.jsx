@@ -1,22 +1,13 @@
 import Container from "react-bootstrap/Container";
 import Nav from "react-bootstrap/Nav";
 import Navbar from "react-bootstrap/Navbar";
-import Form from "react-bootstrap/Form";
-import Button from "react-bootstrap/Button";
 import NavDropdown from "react-bootstrap/NavDropdown";
-import { InputGroup } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
 import { logout } from "../redux/actions/userActions";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { io } from "socket.io-client";
-import {
-  setChatRooms,
-  setSocket,
-  setMessageReceived,
-  removeChatRoom,
-} from "../redux/actions/chatActions";
+
 
 const HeaderComponent = () => {
   //import redux state
@@ -127,12 +118,13 @@ const HeaderComponent = () => {
                 <LinkContainer to="/admin/queue">
                     <Nav.Link className="active">Home</Nav.Link>
                   </LinkContainer>
-                  <LinkContainer to="/admin/queue/history">
-                    <Nav.Link className="active">History</Nav.Link>
-                  </LinkContainer>
                   <LinkContainer to="/admin/queue/rtv">
                     <Nav.Link className="active">RTV</Nav.Link>
                   </LinkContainer>
+                  <LinkContainer to="/admin/queue/history">
+                    <Nav.Link className="active">History</Nav.Link>
+                  </LinkContainer>
+                  
                   {/* <LinkContainer to="/admin/users">
                     <Nav.Link className="active">User List</Nav.Link>
                   </LinkContainer> */}
@@ -171,7 +163,7 @@ const HeaderComponent = () => {
             ) : (
               <>
                 <Nav.Link href="/login">Login </Nav.Link>
-                <Nav.Link href="/register">Register </Nav.Link>
+                {/* <Nav.Link href="/register">Register </Nav.Link> */}
               </>
             )}
           </Nav>

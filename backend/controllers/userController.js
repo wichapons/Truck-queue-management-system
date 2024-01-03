@@ -77,7 +77,6 @@ const loginUser = async (req, res, next) => {
     email = email.toLowerCase(); //change email to lower case
 
     const user = await User.findOne({ email }).orFail();
-    console.log(user);
     if(!user){
       return res.status(401).send("wrong credentials");
     }

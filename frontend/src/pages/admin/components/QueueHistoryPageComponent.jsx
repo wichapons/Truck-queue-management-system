@@ -1,13 +1,10 @@
 import { Row, Col, Table, Button } from "react-bootstrap";
-import { LinkContainer } from "react-router-bootstrap";
-import AdminLinksComponent from "../../../components/admin/AdminLinksComponent";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { ColorRing } from "react-loader-spinner";
 import Spinner from "react-bootstrap/Spinner";
 
 const QueueHistoryPageComponent = ({ getQueueHistory }) => {
-  let countdownTime = 180;
   const utcDate = new Date().toISOString().split('T')[0]; //get UTC date in yyyy-MM-dd format
 
   //convert in to GMT+7.00 
@@ -21,38 +18,27 @@ const QueueHistoryPageComponent = ({ getQueueHistory }) => {
   const [loading, setLoading] = useState(false);
   const [productType, setProductType] = useState(null);
   const [loadingStates, setLoadingStates] = useState({});
-  const [countdown, setCountdown] = useState(countdownTime);
+  const [startDate, setStartDate] = useState(formattedDateInGMT7); // initial date as Today
+  const [endDate, setEndDate] = useState(formattedDateInGMT7); // initial date as Today
+
+  const [startDateForDisplay, setStartDateForDisplay ] = useState(currentDateInGMT7.toLocaleDateString('th-TH', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }));
+  const [endDateForDisplay, setEndDateForDisplay ] = useState(currentDateInGMT7.toLocaleDateString('th-TH', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  }));
   
-  const [startDate, setStartDate] = useState(formattedDateInGMT7);
-  const [endDate, setEndDate] = useState(formattedDateInGMT7);
-
-
   useEffect(() => {
     fetchData();
   }, [refresh]);
 
-  /*
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      // Decrease the countdown
-      setCountdown((prevCountdown) =>
-        prevCountdown > 0 ? prevCountdown - 1 : countdownTime
-      );
-    }, 1000);
-
-    // Clear the interval and trigger re-render when countdown reaches 0
-    if (countdown === 0) {
-      clearInterval(intervalId);
-      setCountdown(countdownTime); // Reset countdown
-      setRefresh(!refresh);
-    }
-
-    return () => clearInterval(intervalId);
-  }, [countdown]);
-  */
-
   const fetchData = async () => {
     try {
+      setLoading(true);
       // Get productType from user info
       const tokenResponse = await axios.get("/api/get-token");
 
@@ -62,12 +48,12 @@ const QueueHistoryPageComponent = ({ getQueueHistory }) => {
       }
 
       setProductType(tokenResponse.data.productType);
-      setLoading(true);
-
+      
       // Fetch data from DB based on product type
       const queues = await getQueueHistory(startDate,endDate);
 
       setQueues(queues);
+      setLoading(false);
     } catch (error) {
       console.log(error);
       if (error.response.status === 401) {
@@ -76,16 +62,6 @@ const QueueHistoryPageComponent = ({ getQueueHistory }) => {
       }
     }
   };
-
-  /*
-  // Function to refresh the page
-  const refreshPage = () => {
-    setRefresh(!refresh);
-    setCountdown(countdownTime); // Reset countdown
-  };
-  */
-
-
 
   const closeQueue = async (queueID, dockingDoorNumber) => {
     setLoadingStates((prevState) => ({ ...prevState, [queueID]: true }));
@@ -121,25 +97,33 @@ const QueueHistoryPageComponent = ({ getQueueHistory }) => {
 
   const handleStartDateChange = (date) => {
     setStartDate(date);
+    const parsedDate = new Date(date);
+    const formattedDate = parsedDate.toLocaleDateString('th-TH', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+    setStartDateForDisplay(formattedDate)
   };
 
   const handleEndDateChange = (date) => {
     setEndDate(date);
+    const parsedDate = new Date(date);
+    const formattedDate = parsedDate.toLocaleDateString('th-TH', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+    });
+    setEndDateForDisplay(formattedDate)
   };
 
   const handleFilterButtonClick = () => {
     // Perform actions based on the selected start and end dates
-    // For example, you can filter the data using these dates
-    console.log("Start Date:", startDate);
-    console.log("End Date:", endDate);
     fetchData();
   };
 
   return (
     <Row className="m-5">
-      {/* <Col md={2}>
-        <AdminLinksComponent />
-      </Col> */}
       <Col md={12}>
       <h2 style={{ margin: "auto" }}>
           History{" "}
@@ -181,19 +165,17 @@ const QueueHistoryPageComponent = ({ getQueueHistory }) => {
             <tr style={{ textAlign: "center" }}>
               <th>วันที่</th>
               <th>คิว</th>
-              <th>Supplier ID</th>
-              <th>Supplier Name</th>
-              <th>Doc Type</th>
-
-              <th>ประตู</th>
-              <th>จำนวนที่เรียกคิว</th>
-              <th>เวลา</th>
+              <th>รหัสผู้ขนส่ง</th>
+              <th>ชื่อผู้ขนส่ง</th>
+              <th>ประเภทเอกสาร</th>
+              <th>เลขประตู</th>
+              <th>เวลาเรียกคิว</th>
               <th>Check in</th>
               <th>Check Out</th>
             </tr>
           </thead>
-          {loading ? (
-            <tbody style={{ textAlign: "center" }}>
+          {
+            !loading ? ( queues.length > 0 ? (<tbody style={{ textAlign: "center" }}>
               {queues.map((queue, idx) => {
                 idx++;
                 return queue.isCheckOut ? (
@@ -254,11 +236,6 @@ const QueueHistoryPageComponent = ({ getQueueHistory }) => {
                       : "N/A"}
                   </td> */}
 
-
-
-                    <td style={{ textAlign: "center" }}>
-                      {queue.queueCalledCount}
-                    </td>
 
                     <td>
                       {queue.queueCalledTime
@@ -324,7 +301,7 @@ const QueueHistoryPageComponent = ({ getQueueHistory }) => {
                                 hour: "2-digit",
                                 minute: "2-digit",
                               }
-                            )
+                            )+ " น."
                           : // Render nothing if checkOutTime is not available
                             ""
                         : // CHECK OUT BUTTON
@@ -361,12 +338,18 @@ const QueueHistoryPageComponent = ({ getQueueHistory }) => {
                   ""
                 );
               })}
-            </tbody>
+            </tbody>):(<tbody style={{ textAlign: "center" }}>
+                <tr>
+                  <td colSpan="11">ไม่พบข้อมูลคิวในระบบระหว่างวันที่ {startDateForDisplay} ถึง {endDateForDisplay} </td>
+                </tr>
+              </tbody>)
+
+            
           ) : (
             ""
           )}
         </Table>
-        {!loading ? (
+        {loading ? (
           <ColorRing
             visible={true}
             height="7rem"
