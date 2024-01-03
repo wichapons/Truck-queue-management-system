@@ -51,7 +51,15 @@ function App() {
 
         {/* admin protected routes: */}
         <Route element={<ProtectedRoutesComponents isAdminPage={true} />}>
-          <Route path="/admin/users" element={<AdminUsersPage />} />
+          {/* <Route path="/admin/users" element={<AdminUsersPage />} /> */}
+          <Route path="/admin/users" element={
+              <div className="not-found-container">
+                <h1 className="not-found-title">403 - Unauthorize Access</h1>
+                <p className="not-found-message">
+                Sorry, the page you are looking for <b>requires permission</b> to access.
+                </p>
+              </div>
+            } />
           <Route path="/admin/edit-user/:id" element={<AdminEditUserPage />} />
           <Route
             path="/admin/create-new-queue"
