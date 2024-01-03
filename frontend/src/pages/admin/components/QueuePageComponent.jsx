@@ -62,6 +62,7 @@ const QueuePageComponent = ({ getQueue }) => {
     if (countdown === 0) {
       clearInterval(intervalId);
       setCountdown(countdownTime); // Reset countdown
+      setLoading(true)
       setRefresh(!refresh);
     }
 
@@ -70,6 +71,7 @@ const QueuePageComponent = ({ getQueue }) => {
 
    // Function to refresh the page
    const refreshPage = () => {
+    setLoading(true);
     setRefresh(!refresh);
     setCountdown(countdownTime); // Reset countdown
   };
