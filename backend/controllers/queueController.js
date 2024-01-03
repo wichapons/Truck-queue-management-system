@@ -16,9 +16,16 @@ const sendLineNotification = async (req, res, next) => {
     //get data from database
     const queueData = await Queue.findOne({ _id: new ObjectId(queue_id) });
 
+    const supplierInfo = queueData.suppliers.map(supplier => {
+      const formattedSupplierInfo = `${supplier.supplierCode} ${supplier.supplierName}`;
+      return formattedSupplierInfo.length <= 22 ? formattedSupplierInfo : formattedSupplierInfo.slice(0, 24) ;
+    });
+    
+    const message = `เชิญคิวที่ ${queueData.queueNumber}\nผู้ขนส่ง: \n${supplierInfo.join(',\n ')}\nลงของที่ประตู ${queueData.dockingDoorNumber} ค่ะ`;
+
     //prepare data to send to Line API
     let json_data = {
-      message: `เชิญคิวที่ ${queueData.queueNumber} Supplier ${queueData.supplierCode} ${queueData.supplierName}, ลงของที่ประตู ${queueData.dockingDoorNumber} ค่ะ`,
+      message: message
     };
 
     let response = await axios({
@@ -79,10 +86,15 @@ const getAllQueue = async (req, res, next) => {
   }
 
   if (productType === "All") {
-    let queueData = await Queue.find({isCheckOut:false}).sort({ queueNumber: 1 });
+    let queueData = await Queue.find({ isCheckOut: false }).sort({
+      queueNumber: 1,
+    });
     res.status(200).json(queueData);
   } else {
-    let queueData = await Queue.find({ goodsType: productType,isCheckOut:false });
+    let queueData = await Queue.find({
+      goodsType: productType,
+      isCheckOut: false,
+    });
     res.status(200).json(queueData);
   }
 };
@@ -95,7 +107,7 @@ const createNewQueue = async (req, res, next) => {
     req.user = decoded;
 
     // Extract supplier-related information from the request body
-    const { suppliers, goodstype, queuenumber,isRTV } = req.body;
+    const { suppliers, goodstype, queuenumber, isRTV } = req.body;
 
     /*
     //check if supplierCode and queueNumber is not empty
@@ -167,7 +179,7 @@ const checkIn = async (req, res, next) => {
         isCheckin: true,
         checkInByUserID: req.user._id,
         checkInByUserName: req.user.name,
-        checkInTime: new Date()
+        checkInTime: new Date(),
       }
     );
 
@@ -193,7 +205,7 @@ const checkInRTV = async (req, res, next) => {
       { _id: new ObjectId(queueID) },
       {
         RTVCheckinByUserName: req.user.name,
-        RTVCheckinTime: new Date()
+        RTVCheckinTime: new Date(),
       }
     );
     res.status(200).json({
@@ -201,11 +213,10 @@ const checkInRTV = async (req, res, next) => {
       queueId: queue._id,
       supcode: queue.supplierCode,
     });
-}
-  catch (err) {
+  } catch (err) {
     next(err);
   }
-}
+};
 
 const checkOut = async (req, res, next) => {
   try {
@@ -221,7 +232,7 @@ const checkOut = async (req, res, next) => {
         isCheckOut: true,
         checkOutByUserID: req.user._id,
         checkOutByUserName: req.user.name,
-        checkOutTime: new Date()
+        checkOutTime: new Date(),
       }
     );
 
@@ -247,7 +258,7 @@ const checkOutRTV = async (req, res, next) => {
       { _id: new ObjectId(queueID) },
       {
         RTVCheckOutByUserName: req.user.name,
-        RTVCheckOutTime: new Date()
+        RTVCheckOutTime: new Date(),
       }
     );
 
@@ -255,12 +266,11 @@ const checkOutRTV = async (req, res, next) => {
       message: "RTV Queue checked out successfully",
       queueId: queue._id,
       supcode: queue.supplierCode,
-    })
-}
-  catch (err) {
+    });
+  } catch (err) {
     next(err);
   }
-}
+};
 
 const updateDockingNumber = async (req, res, next) => {
   try {
@@ -282,45 +292,47 @@ const updateDockingNumber = async (req, res, next) => {
 
 const getRTVQueue = async (req, res, next) => {
   try {
-    let queueData = await Queue.find({ isRTV: true , isCheckin: true, RTVCheckOutTime: null}).sort({ queueNumber: 1 });
+    let queueData = await Queue.find({
+      isRTV: true,
+      isCheckin: true,
+      RTVCheckOutTime: null,
+    }).sort({ queueNumber: 1 });
     res.status(200).json(queueData);
   } catch (err) {
     next(err);
   }
-}
+};
 
 const getQueueHistory = async (req, res, next) => {
   try {
-    if(req.query.startDate){
+    if (req.query.startDate) {
       startDate = req.query.startDate;
       endDate = req.query.endDate;
-    }else{
-       startDate = new Date().toISOString().split('T')[0];
-       endDate = new Date().toISOString().split('T')[0];
+    } else {
+      startDate = new Date().toISOString().split("T")[0];
+      endDate = new Date().toISOString().split("T")[0];
     }
-   
+
     // Parse the start and end dates, assuming they are in ISO format (YYYY-MM-DD)
     const startDateTime = new Date(`${startDate}T00:00:00Z`);
     const endDateTime = new Date(`${endDate}T23:59:59Z`);
 
     // Adjust dates to GMT+7
-    startDateTime.setUTCHours(startDateTime.getUTCHours() + 7);
-    endDateTime.setUTCHours(endDateTime.getUTCHours() + 7);
-    
+    startDateTime.setUTCHours(startDateTime.getUTCHours() - 7);
+    endDateTime.setUTCHours(endDateTime.getUTCHours() - 7);
+
     let queueData = await Queue.find({
       isCheckOut: true,
       isRTV: false,
       createdAt: { $gte: startDateTime, $lt: endDateTime },
-    }).sort({ createdAt:1,queueNumber: 1 });
-
-    console.log(queueData);
+    }).sort({ createdAt: 1, checkOutTime: 1 });
 
     res.status(200).json(queueData);
   } catch (err) {
     console.log(err);
     next(err);
   }
-}
+};
 
 module.exports = {
   sendLineNotification: sendLineNotification,
@@ -329,8 +341,8 @@ module.exports = {
   checkIn: checkIn,
   updateDockingNumber: updateDockingNumber,
   checkOut: checkOut,
-  getRTVQueue:getRTVQueue,
-  checkInRTV:checkInRTV,
-  checkOutRTV:checkOutRTV,
-  getQueueHistory:getQueueHistory
+  getRTVQueue: getRTVQueue,
+  checkInRTV: checkInRTV,
+  checkOutRTV: checkOutRTV,
+  getQueueHistory: getQueueHistory,
 };

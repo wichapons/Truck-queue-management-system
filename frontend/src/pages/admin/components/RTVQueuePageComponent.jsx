@@ -1,23 +1,25 @@
 import { Row, Col, Table, Button } from "react-bootstrap";
 import { LinkContainer } from "react-router-bootstrap";
-import AdminLinksComponent from "../../../components/admin/AdminLinksComponent";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { ColorRing } from "react-loader-spinner";
 import Spinner from "react-bootstrap/Spinner";
 
 const QueuePageComponent = ({ getQueue }) => {
+  let countdownTime = 180;
   const [queues, setQueues] = useState([]);
   const [refresh, setRefresh] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [isSending, setIsSending] = useState(false);
   const [productType, setProductType] = useState(null);
   const [lineNotiLoadingStates, setLineNotiLoadingStates] = useState({});
   const [loadingStates, setLoadingStates] = useState({});
+  const [countdown, setCountdown] = useState(countdownTime);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
+        //setLoading(true);
         // Get productType from user info
         const tokenResponse = await axios.get("/api/get-token");
 
@@ -27,7 +29,7 @@ const QueuePageComponent = ({ getQueue }) => {
         }
 
         //setProductType(tokenResponse.data.productType);
-        setLoading(true);
+        
 
         // Fetch data from DB based on product type
         const queues = await getQueue(/*tokenResponse.data.productType*/);
@@ -37,7 +39,9 @@ const QueuePageComponent = ({ getQueue }) => {
         //   (a, b) => a.queueNumber - b.queueNumber
         // );
         setQueues(queues);
+        setLoading(false)
       } catch (error) {
+        
         if(error.response.status === 401){
           //redirect to login page
           window.location.href = "/login";
@@ -118,6 +122,30 @@ const QueuePageComponent = ({ getQueue }) => {
     }
   };
 
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      // Decrease the countdown
+      setCountdown((prevCountdown) => (prevCountdown > 0 ? prevCountdown - 1 : countdownTime));
+    }, 1000);
+
+    // Clear the interval and trigger re-render when countdown reaches 0
+    if (countdown === 0) {
+      clearInterval(intervalId);
+      setCountdown(countdownTime); // Reset countdown
+      setLoading(true)
+      setRefresh(!refresh);
+    }
+
+    return () => clearInterval(intervalId);
+  }, [countdown]);
+
+   // Function to refresh the page
+   const refreshPage = () => {
+    setLoading(true)
+    setRefresh(!refresh);
+    setCountdown(countdownTime); // Reset countdown
+  };
+
   return (
     <Row className="m-5">
       {/* <Col md={2}>
@@ -130,25 +158,27 @@ const QueuePageComponent = ({ getQueue }) => {
             <Button variant="warning">Add Queue</Button>
           </LinkContainer>
         </h2>
+        <div>
+      <p>Auto-refresh in {countdown} seconds <Button onClick={refreshPage} className="btn-sm btn-success"><i className="bi bi-arrow-clockwise"></i></Button></p>    
+    </div>
 
         <p></p>
         <Table striped bordered hover responsive>
           <thead>
             <tr style={{ textAlign: "center" }}>
-              <th>คิว</th>
-              <th>Supplier ID</th>
-              <th>Supplier Name</th>
-              <th>Doc Type</th>
-              <th>Assign Dock</th>
-              <th>ประตู</th>
-              <th>เรียกคิว</th>
-              <th>ครั้งที่</th>
+            <th>คิว</th>
+              <th>รหัสผู้ขนส่ง</th>
+              <th>ชื่อผู้ขนส่ง</th>
+              <th>ประเภทเอกสาร</th>
+              <th>กำหนดประตู</th>
+              <th>เลขประตู</th>
+              <th>ส่งไลน์</th>
               <th>เวลา</th>
               <th>Check in</th>
               <th>Check Out</th>
             </tr>
           </thead>
-          {loading ? (
+          {!loading ? (
             queues.length > 0 ? (
               <tbody style={{ textAlign: "center" }}>
                 {queues.map((queue, idx) => {
@@ -240,9 +270,6 @@ const QueuePageComponent = ({ getQueue }) => {
                         </Button>
                       </td>
 
-                      <td style={{ textAlign: "center" }}>
-                        {queue.queueCalledCount}
-                      </td>
 
                       <td>
                         {queue.queueCalledTime
@@ -345,22 +372,22 @@ const QueuePageComponent = ({ getQueue }) => {
                       </td>
                     </tr>
                   ) : (
-                    ""
-                  );
-                })}
-              </tbody>
-            ) : (
-              <tbody style={{ textAlign: "center" }}>
+                    <tbody style={{ textAlign: "center" }}>
                 <tr>
                   <td colSpan="11">No more RTV queue!</td>
                 </tr>
               </tbody>
+                  );
+                })}
+              </tbody>
+            ) : (
+              ""
             )
           ) : (
             ""
           )}
         </Table>
-        {!loading ? (
+        {loading ? (
           <ColorRing
             visible={true}
             height="7rem"
