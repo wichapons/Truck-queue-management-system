@@ -169,7 +169,7 @@ const QueueHistoryPageComponent = ({ getQueueHistory }) => {
               <th>ชื่อผู้ขนส่ง</th>
               <th>ประเภทเอกสาร</th>
               <th>เลขประตู</th>
-              <th>เวลาเรียกคิว</th>
+              <th>เวลาส่งไลน์</th>
               <th>Check in</th>
               <th>Check Out</th>
             </tr>

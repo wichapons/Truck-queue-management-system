@@ -86,12 +86,12 @@ const LoginPageComponent = ({loginUserApiRequest,reduxDispatch, setReduxUserStat
               />
             </Form.Group>
 
-            <Row className="pb-2">
+            {/* <Row className="pb-2">
               <Col>
                Don't you have an account?
                 <Link to={"/register"}> Register </Link>
               </Col>
-            </Row>
+            </Row> */}
 
             <Button variant="primary" type="submit">
             {/* control the spinner at login button */}

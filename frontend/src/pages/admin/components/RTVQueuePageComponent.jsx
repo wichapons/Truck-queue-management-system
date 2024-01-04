@@ -173,7 +173,7 @@ const QueuePageComponent = ({ getQueue }) => {
               <th>กำหนดประตู</th>
               <th>เลขประตู</th>
               <th>ส่งไลน์</th>
-              <th>เวลา</th>
+              <th>เวลาส่งไลน์</th>
               <th>Check in</th>
               <th>Check Out</th>
             </tr>

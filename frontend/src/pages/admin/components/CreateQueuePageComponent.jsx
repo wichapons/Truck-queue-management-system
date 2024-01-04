@@ -168,7 +168,7 @@ const AdminCreateProductPageComponent = () => {
     */
 
     setNumPairs(
-      e.target.checked ? Number(prompt("please enter number of suppliers input")): 0
+      e.target.checked ? Number(prompt("กรุณาใส่จำนวนผู้ขนส่งที่ต้องการเพิ่ม")): 0
     ); // Change the number of pairs based on checkbox state
   };
 
@@ -178,7 +178,7 @@ const AdminCreateProductPageComponent = () => {
       inputs.push(
         <div key={i}>
           <Form.Group className="mb-3" controlId={`formBasicCode${i}`}>
-            <Form.Label>Supplier Code {i+2}</Form.Label>
+            <Form.Label>รหัสผู้ขนส่ง (กด Enter เพื่อค้นหาชื่อผู้ขนส่ง){i+2}</Form.Label>
             <Form.Control
               name={`supcode${i}`}
               required
@@ -186,9 +186,9 @@ const AdminCreateProductPageComponent = () => {
               inputMode="numeric"
               onKeyDown={(e) => checkMutipleVendorCode(e,i)}
             />
-          </Form.Group>
+          </Form.Group> 
           <Form.Group className="mb-3" controlId={`formBasicName${i}`}>
-            <Form.Label>Supplier Name {i+2}</Form.Label>
+            <Form.Label>ชื่อผู้ขนส่ง {i+2}</Form.Label>
             <Form.Control name={`supName${i}`} required />
           </Form.Group>
         </div>
@@ -221,7 +221,7 @@ const AdminCreateProductPageComponent = () => {
                 <Form.Check
                   name="multipleVendors"
                   type="checkbox"
-                  label="Multiple Vendors"
+                  label="เพิ่มช่องผู้ขนส่ง"
                   onChange={handleMultipleVendorChange}
                 />
               </Form.Group>
@@ -231,7 +231,8 @@ const AdminCreateProductPageComponent = () => {
             </Row>
 
             <Form.Group className="mb-3" controlId="formBasicName">
-              <Form.Label>Supplier Code</Form.Label>
+              <Form.Label>รหัสผู้ขนส่ง </Form.Label>
+              
               <Form.Control
                 name="supcode"
                 required
@@ -241,10 +242,11 @@ const AdminCreateProductPageComponent = () => {
                   checkVendorCode(e);
                 }}
               />
+              
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicName">
-              <Form.Label>Supplier Name</Form.Label>
+              <Form.Label>ชื่อผู้ขนส่ง</Form.Label>
               <Form.Control name="supName" required />
             </Form.Group>
 
