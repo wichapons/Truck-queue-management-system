@@ -288,7 +288,7 @@ const QueuePageComponent = ({ getQueue }) => {
                         {queue.RTVCheckinTime ? (
                           // CHECK IN TIME
                           queue.RTVCheckinTime ? (
-                            new Date(queue.checkInTime).toLocaleString(
+                            new Date(queue.RTVCheckinTime).toLocaleString(
                               "en-GB",
                               {
                                 timeZone: "Asia/Bangkok",
