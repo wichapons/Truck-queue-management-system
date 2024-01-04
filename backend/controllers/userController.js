@@ -96,7 +96,8 @@ const loginUser = async (req, res, next) => {
             user.email,
             user.isAdmin,
             user.isGRAdmin,
-            user.productType
+            user.productType,
+            user.isRTVAdmin
           ),
           cookieParams
         )
@@ -110,7 +111,8 @@ const loginUser = async (req, res, next) => {
             isAdmin: user.isAdmin,
             isGRAdmin: user.isGRAdmin,
             doNotLogout,
-            productType:user.productType
+            productType:user.productType,
+            isRTVAdmin:user.isRTVAdmin
           },
         });
     } else {

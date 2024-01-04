@@ -35,6 +35,11 @@ const userSchema = mongoose.Schema({
     type: String,
     required: true,
     default: "null"
+  },
+  isRTVAdmin:{
+    type:Boolean,
+    require:true,
+    default:false
   }
 },{
     timestamps: true
