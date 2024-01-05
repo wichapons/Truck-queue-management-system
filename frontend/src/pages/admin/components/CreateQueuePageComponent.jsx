@@ -178,7 +178,7 @@ const AdminCreateProductPageComponent = () => {
       inputs.push(
         <div key={i}>
           <Form.Group className="mb-3" controlId={`formBasicCode${i}`}>
-            <Form.Label>รหัสผู้ขนส่ง (กด Enter เพื่อค้นหาชื่อผู้ขนส่ง){i+2}</Form.Label>
+            <Form.Label>รหัสผู้ขนส่ง {i+2} (กด Enter เพื่อค้นหาชื่อผู้ขนส่ง)</Form.Label>
             <Form.Control
               name={`supcode${i}`}
               required
@@ -231,7 +231,7 @@ const AdminCreateProductPageComponent = () => {
             </Row>
 
             <Form.Group className="mb-3" controlId="formBasicName">
-              <Form.Label>รหัสผู้ขนส่ง </Form.Label>
+              <Form.Label>รหัสผู้ขนส่ง (กด Enter เพื่อค้นหาชื่อผู้ขนส่ง) </Form.Label>
               
               <Form.Control
                 name="supcode"
@@ -305,7 +305,7 @@ const AdminCreateProductPageComponent = () => {
                 })}{" "}
                 น.
                 <br />
-                Product Type: {createProductResponseState.goodsType}
+                Document Type: {createProductResponseState.goodsType}
                 <br />
                 Supplier Code: {createProductResponseState.suppliers.map((supplier)=>{
                   return supplier.supplierCode + ', '
