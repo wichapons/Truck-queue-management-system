@@ -321,9 +321,10 @@ const getQueueHistory = async (req, res, next) => {
     startDateTime.setUTCHours(startDateTime.getUTCHours() - 7);
     endDateTime.setUTCHours(endDateTime.getUTCHours() - 7);
 
+
     let queueData = await Queue.find({
       isCheckOut: true,
-      isRTV: false,
+      //isRTV: false,
       createdAt: { $gte: startDateTime, $lt: endDateTime },
     }).sort({ createdAt: 1, checkOutTime: 1 });
 
