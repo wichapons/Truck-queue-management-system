@@ -293,8 +293,10 @@ const AdminCreateProductPageComponent = () => {
 
             {createProductResponseState.message ? (
               <Alert variant="success" className="mt-3">
+                สร้างคิวสำเร็จ 
+                <br></br>
                 {createProductResponseState.message}:{" "}
-                {new Date().toLocaleString("en-GB", {
+                {new Date().toLocaleString("th-TH", {
                   timeZone: "Asia/Bangkok",
                   hour12: false,
                   year: "numeric",

@@ -171,6 +171,7 @@ const QueuePageComponent = ({ getQueue }) => {
               <th>รหัสผู้ขนส่ง</th>
               <th>ชื่อผู้ขนส่ง</th>
               <th>ประเภทเอกสาร</th>
+              <th>เวลารับบัตรคิว</th>
               <th>กำหนดประตู</th>
               <th>เลขประตู</th>
               <th>ส่งไลน์</th>
@@ -212,6 +213,18 @@ const QueuePageComponent = ({ getQueue }) => {
                     >
                       {queue.goodsType}
                     </td>
+
+                    <td>
+                    {queue.createdAt
+                      ? new Date(queue.createdAt).toLocaleString("en-GB", {
+                          timeZone: "Asia/Bangkok",
+                          hour12: false,
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }) + " น."
+                      : "N/A"}
+                  </td>
+
                     <td style={{ textAlign: "center" }}>
                       <Button
                         className="btn-sm"
@@ -221,23 +234,16 @@ const QueuePageComponent = ({ getQueue }) => {
                         <i className="bi bi-pencil-square"></i>
                       </Button>
                     </td>
+
+                    
+
                     <td style={{ textAlign: "center" }}>
                       {queue.dockingDoorNumber
                         ? queue.dockingDoorNumber
                         : "N/A"}
                     </td>
 
-                    {/* <td>
-                    {queue.createdAt
-                      ? new Date(queue.createdAt).toLocaleString("en-GB", {
-                          timeZone: "Asia/Bangkok",
-                          hour12: false,
-                          year: "numeric",
-                          month: "short",
-                          day: "2-digit",
-                        })
-                      : "N/A"}
-                  </td> */}
+                    
 
                     <td style={{ textAlign: "center" }}>
                       <Button
