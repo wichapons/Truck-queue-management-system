@@ -52,38 +52,13 @@ const HeaderComponent = () => {
 
   //get msg from socketio server
   useEffect(() => {
-    /*
-    if (userInfo.isAdmin) {
-      let audio = new Audio("/audio/chat-msg.mp3");
-      const socket = io("https://truck-queue-management-uat-backend.onrender.com");
-      //send signal via socket io then admin is online, random number is for telling server how many admins are currently online
-      socket.emit(
-        "admin connected with server",
-        "Admin" + Math.floor(Math.random() * 1000000000000)
-      );
-      socket.on(
-        "server sends message from client to admin",
-        ({ user, message }) => {
-          dispatch(setSocket(socket));
-          dispatch(setChatRooms(user, message)); //send to redux action named setChatRooms
-          dispatch(setMessageReceived(true));
-          audio.play();
-        }
-      );
-      //listen to disconected signal from backend
-      socket.on("disconnected", ({ reason, socketId }) => {
-        dispatch(removeChatRoom(socketId));
-      });
-      return () => socket.disconnect();
-    }
-    */
   }, [userInfo.isAdmin]);
 
   return (
     <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
       <Container>
         {/* use LinkContainer for render the specific page without reloading browser */}
-        <LinkContainer to="/admin/queue">
+        <LinkContainer to={userInfo.isRTVAdmin === false?("/admin/queue"):("admin/queue/rtv")}>
           <Navbar.Brand>
             <i className="bi bi-bus-front-fill"></i> Truck Queue Management
             System{" "}
@@ -94,25 +69,9 @@ const HeaderComponent = () => {
           id="responsive-navbar-nav"
           className="justify-content-center"
         >
-          {/* <Nav className="me-auto">
-            <InputGroup>
-
-              <Form.Control
-                onKeyUp={submitHandler} onChange={(e)=>{
-                  setSearchQuery(e.target.value)
-                }}
-                type="search"
-                placeholder="Search"
-                aria-label="Search"
-              />
-              <Button onClick={submitHandler} variant="warning">
-                <i className="bi bi-search"></i>
-              </Button>
-            </InputGroup>
-          </Nav> */}
 
           <Nav>
-            {userInfo.name && userInfo.isAdmin === true ? (
+            {userInfo.name && userInfo.isAdmin === true && userInfo.isRTVAdmin === false ? (
               <>
                 <Nav className="justify-content-center">
                 <LinkContainer to="/admin/queue">
@@ -124,21 +83,12 @@ const HeaderComponent = () => {
                   <LinkContainer to="/admin/queue/history">
                     <Nav.Link className="active">History</Nav.Link>
                   </LinkContainer>
-                  
-                  {/* <LinkContainer to="/admin/users">
-                    <Nav.Link className="active">User List</Nav.Link>
-                  </LinkContainer> */}
-
                 </Nav>
 
                 <NavDropdown
                   title={userInfo.name + " " + userInfo.lastName}
                   id="collasible-nav-dropdown"
                 >
-                  {/* <NavDropdown.Item href="/user/my-orders">
-                    My Orders
-                  </NavDropdown.Item>
-                  <NavDropdown.Item href="/user">Profile</NavDropdown.Item> */}
                   <NavDropdown.Item href="/admin/users">User List</NavDropdown.Item>
                   <NavDropdown.Divider />
                   <NavDropdown.Item
@@ -148,18 +98,32 @@ const HeaderComponent = () => {
                     Logout
                   </NavDropdown.Item>
                 </NavDropdown>
-                {/* <Nav.Link href="/login" onClick={() => dispatch(logout())}> Logout </Nav.Link> */}
               </>
-            ) : userInfo.name && userInfo.isAdmin === true ? (
-              <LinkContainer to="/admin/orders">
-                <Nav.Link>
-                  <i class="bi bi-person-badge-fill"></i> {userInfo.name}
-                  {/* red dot for inform admin that there are chat msg from cust.  */}
-                  {messageReceived && (
-                    <span className="position-absolute top-1 start-10 translate-middle p-2 bg-danger border border-light rounded-circle"></span>
-                  )}
-                </Nav.Link>
-              </LinkContainer>
+            ) : userInfo.name && userInfo.isAdmin === true && userInfo.isRTVAdmin === true ? (
+              <>
+                <Nav className="justify-content-center">
+                  <LinkContainer to="/admin/queue/rtv">
+                    <Nav.Link className="active">RTV</Nav.Link>
+                  </LinkContainer>
+                  <LinkContainer to="/admin/queue/history">
+                    <Nav.Link className="active">History</Nav.Link>
+                  </LinkContainer>
+                </Nav>
+
+                <NavDropdown
+                  title={userInfo.name + " " + userInfo.lastName}
+                  id="collasible-nav-dropdown"
+                >
+                  <NavDropdown.Item href="/admin/users">User List</NavDropdown.Item>
+                  <NavDropdown.Divider />
+                  <NavDropdown.Item
+                    href="/login"
+                    onClick={() => dispatch(logout())}
+                  >
+                    Logout
+                  </NavDropdown.Item>
+                </NavDropdown>
+              </>
             ) : (
               <>
                 <Nav.Link href="/login">Login </Nav.Link>

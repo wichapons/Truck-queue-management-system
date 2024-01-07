@@ -42,8 +42,8 @@ const LoginPageComponent = ({loginUserApiRequest,reduxDispatch, setReduxUserStat
         }
           //if admin navigate to admin page
         else {
-          navigate('/admin/orders',{replace:true})
-          window.location.href = "/admin/queue";
+          
+          window.location.href = !res.userLoggedIn.isRTVAdmin?("/admin/queue"):("admin/queue/rtv");
         }// navigate("/admin/orders", { replace: true });
       })
       .catch((err) => {

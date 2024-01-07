@@ -5,6 +5,7 @@ import axios from "axios";
 import Alert from "react-bootstrap/Alert";
 import Spinner from "react-bootstrap/Spinner";
 import Dropdown from "react-bootstrap/Dropdown";
+import { useDispatch, useSelector } from "react-redux";
 
 const AdminCreateProductPageComponent = () => {
   const [validated, setValidated] = useState(false);
@@ -16,6 +17,7 @@ const AdminCreateProductPageComponent = () => {
     supcode: "",
   });
   const [numPairs, setNumPairs] = useState(0);
+  const { userInfo } = useSelector((state) => state.userRegisterLogin);
 
   const createQueueApiRequest = async (formInputs) => {
     const { data } = await axios.post(`/api/queue/create`, {
@@ -205,7 +207,7 @@ const AdminCreateProductPageComponent = () => {
     <Container>
       <Row className="justify-content-md-center mt-5">
         <Col md={1} className="ml-6">
-          <Link to="/admin/queue" className="btn btn-warning my-3 ">
+          <Link to= {!userInfo.isRTVAdmin?("/admin/queue"):("/admin/queue/rtv")} className="btn btn-warning my-3 ">
             Go Back
           </Link>
         </Col>
