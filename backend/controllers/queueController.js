@@ -145,10 +145,20 @@ const createNewQueue = async (req, res, next) => {
     */
 
     //auto-mataching docking door
-    if (goodstype === "Consignment" || goodstype === "Credit") {
+    if (goodstype === "Consignment" || goodstype === "CRL" || goodstype === "PET 'N ME"|| goodstype === "Plaza") {
       queue.dockingDoorNumber = 50;
-    } else if (goodstype === "Beautrium") {
+    } else if (goodstype === "Beautrium"|| goodstype === "Credit"|| goodstype === "Special"){
       queue.dockingDoorNumber = 58;
+    }else{
+      res.json({
+        message: "Goods type is not valid",
+        queueId: queue._id,
+        suppliers: queue.suppliers,
+        goodsType: queue.goodsType,
+        queueNumber: queue.queueNumber,
+      })
+      next(err)
+      return;
     }
 
     await queue.save(); // save to database

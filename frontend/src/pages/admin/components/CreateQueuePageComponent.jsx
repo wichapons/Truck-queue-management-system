@@ -60,16 +60,16 @@ const AdminCreateProductPageComponent = () => {
         supplierName: element[`supName${i}`].value,
       });
     }
-    
+
     suppliers.push({
       supplierCode: element.supcode.value,
       supplierName: element.supName.value,
-    })
+    });
     const formInputs = {
       suppliers,
       goodstype: element.goodstype.value,
       queuenumber: element.queuenumber.value,
-      isRTV: element.rtv.checked // Set isRTV to true if the checkbox is checked, otherwise false
+      isRTV: element.rtv.checked, // Set isRTV to true if the checkbox is checked, otherwise false
     };
     try {
       setLoading(true);
@@ -136,11 +136,11 @@ const AdminCreateProductPageComponent = () => {
       e.preventDefault();
       const form = e.currentTarget.form;
       const element = form.elements;
-      
+
       // Get the supplier code and name input fields based on the index
       const supplierId = element[`supcode${index}`].value;
       const supNameField = element[`supName${index}`];
-  
+
       try {
         checkVendorCodeApiRequest(supplierId).then((response) => {
           if (response.status === 404) {
@@ -168,7 +168,9 @@ const AdminCreateProductPageComponent = () => {
     */
 
     setNumPairs(
-      e.target.checked ? Number(prompt("กรุณาใส่จำนวนผู้ขนส่งที่ต้องการเพิ่ม")): 0
+      e.target.checked
+        ? Number(prompt("กรุณาใส่จำนวนผู้ขนส่งที่ต้องการเพิ่ม"))
+        : 0
     ); // Change the number of pairs based on checkbox state
   };
 
@@ -178,17 +180,19 @@ const AdminCreateProductPageComponent = () => {
       inputs.push(
         <div key={i}>
           <Form.Group className="mb-3" controlId={`formBasicCode${i}`}>
-            <Form.Label>รหัสผู้ขนส่ง {i+2} (กด Enter เพื่อค้นหาชื่อผู้ขนส่ง)</Form.Label>
+            <Form.Label>
+              รหัสผู้ขนส่ง {i + 2} (กด Enter เพื่อค้นหาชื่อผู้ขนส่ง)
+            </Form.Label>
             <Form.Control
               name={`supcode${i}`}
               required
               type="number"
               inputMode="numeric"
-              onKeyDown={(e) => checkMutipleVendorCode(e,i)}
+              onKeyDown={(e) => checkMutipleVendorCode(e, i)}
             />
-          </Form.Group> 
+          </Form.Group>
           <Form.Group className="mb-3" controlId={`formBasicName${i}`}>
-            <Form.Label>ชื่อผู้ขนส่ง {i+2}</Form.Label>
+            <Form.Label>ชื่อผู้ขนส่ง {i + 2}</Form.Label>
             <Form.Control name={`supName${i}`} required />
           </Form.Group>
         </div>
@@ -213,9 +217,8 @@ const AdminCreateProductPageComponent = () => {
             onSubmit={handleSubmit}
             onKeyDown={(e) => checkKeyDown(e)}
           >
+            {/* CHECKBOX SECTION */}
 
-          {/* CHECKBOX SECTION */}
-          
             <Row md={3}>
               <Form.Group className="mb-3" controlId="formBasicCheckbox">
                 <Form.Check
@@ -231,8 +234,10 @@ const AdminCreateProductPageComponent = () => {
             </Row>
 
             <Form.Group className="mb-3" controlId="formBasicName">
-              <Form.Label>รหัสผู้ขนส่ง (กด Enter เพื่อค้นหาชื่อผู้ขนส่ง) </Form.Label>
-              
+              <Form.Label>
+                รหัสผู้ขนส่ง (กด Enter เพื่อค้นหาชื่อผู้ขนส่ง){" "}
+              </Form.Label>
+
               <Form.Control
                 name="supcode"
                 required
@@ -242,7 +247,6 @@ const AdminCreateProductPageComponent = () => {
                   checkVendorCode(e);
                 }}
               />
-              
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicName">
@@ -251,7 +255,7 @@ const AdminCreateProductPageComponent = () => {
             </Form.Group>
 
             {/* Render Supplier Code and Supplier Name inputs based on the number of pairs */}
-          {renderSupplierInputs()}
+            {renderSupplierInputs()}
 
             <Form.Group className="mb-3" controlId="formBasicCount">
               <Form.Label>ประเภทเอกสาร</Form.Label>
@@ -269,6 +273,10 @@ const AdminCreateProductPageComponent = () => {
                 <option value="Consignment">Consignment</option>
                 <option value="Credit">Credit</option>
                 <option value="Beautrium">Beautrium</option>
+                <option value="CRL">CRL</option>
+                <option value="PET 'N ME">PET 'N ME</option>
+                <option value="Plaza">Plaza</option>
+                <option value="Special">Special</option>
               </Form.Select>
             </Form.Group>
 
@@ -293,7 +301,7 @@ const AdminCreateProductPageComponent = () => {
 
             {createProductResponseState.message ? (
               <Alert variant="success" className="mt-3">
-                สร้างคิวสำเร็จ 
+                สร้างคิวสำเร็จ
                 <br></br>
                 {createProductResponseState.message}:{" "}
                 {new Date().toLocaleString("th-TH", {
@@ -309,12 +317,14 @@ const AdminCreateProductPageComponent = () => {
                 <br />
                 Document Type: {createProductResponseState.goodsType}
                 <br />
-                Supplier Code: {createProductResponseState.suppliers.map((supplier)=>{
-                  return supplier.supplierCode + ', '
+                Supplier Code:{" "}
+                {createProductResponseState.suppliers.map((supplier) => {
+                  return supplier.supplierCode + ", ";
                 })}
                 <br />
-                Supplier Name: {createProductResponseState.suppliers.map((supplier)=>{
-                  return supplier.supplierName
+                Supplier Name:{" "}
+                {createProductResponseState.suppliers.map((supplier) => {
+                  return supplier.supplierName;
                 })}
                 <br />
                 Queue Number: {createProductResponseState.queueNumber}
