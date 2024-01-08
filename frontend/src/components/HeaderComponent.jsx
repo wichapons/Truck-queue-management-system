@@ -4,61 +4,41 @@ import Navbar from "react-bootstrap/Navbar";
 import NavDropdown from "react-bootstrap/NavDropdown";
 import { LinkContainer } from "react-router-bootstrap";
 import { logout } from "../redux/actions/userActions";
-import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-
+import axios from "axios";
 
 const HeaderComponent = () => {
-  //import redux state
-  const dispatch = useDispatch();
-  //get userInfo from current redux state
-  const { userInfo } = useSelector((state) => state.userRegisterLogin);
-  //the category that will be display in the navbar when user select category from the list
-  const [searchCategoryToggle, setSearchCategoryToggle] = useState("All");
-  //for sending to backend
-  const [searchQuery, setSearchQuery] = useState("");
-  //get messageReceived data from redux state
-  const { messageReceived } = useSelector((state) => state.adminChat);
+  const [userInfo, setUserInfo] = useState({});
 
-  const navigate = useNavigate();
-
-  //send search query to backend when user press enter or click search
-  const submitHandler = (e) => {
-    if (e.keyCode && e.keyCode !== 13) {
-      return;
-    }
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      //remove space from user input
-      if (searchCategoryToggle === "All") {
-        navigate(`/product-list/search/${searchQuery}`);
-      } else {
-        navigate(
-          `/product-list/category/${searchCategoryToggle.replaceAll(
-            "/",
-            ","
-          )}/search/${searchQuery}`
-        );
-      }
-    } else if (searchCategoryToggle !== "All") {
-      navigate(
-        `/product-list/category/${searchCategoryToggle.replaceAll("/", ",")}`
-      );
-    } else {
-      navigate("/product-list");
-    }
-  };
-
-  //get msg from socketio server
   useEffect(() => {
-  }, [userInfo.isAdmin]);
+    const getUserInfo = async () => {
+      try {
+        const response = await axios.get(`/api/users/profile`);
+        const updatedUserInfo = response.data;
+
+        // Update userInfo in local state
+        setUserInfo(updatedUserInfo);
+
+      } catch (error) {
+        console.error('Error fetching user information:', error);
+      }
+    };
+
+    // Check if userInfo is an empty object before fetching
+    if (Object.keys(userInfo).length === 0) {
+      getUserInfo();
+    }
+  }, []);
 
   return (
     <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
       <Container>
         {/* use LinkContainer for render the specific page without reloading browser */}
-        <LinkContainer to={userInfo.isRTVAdmin === false?("/admin/queue"):("admin/queue/rtv")}>
+        <LinkContainer
+          to={
+            userInfo.isRTVAdmin === false ? "/admin/queue" : "admin/queue/rtv"
+          }
+        >
           <Navbar.Brand>
             <i className="bi bi-bus-front-fill"></i> Truck Queue Management
             System{" "}
@@ -69,12 +49,13 @@ const HeaderComponent = () => {
           id="responsive-navbar-nav"
           className="justify-content-center"
         >
-
           <Nav>
-            {userInfo.name && userInfo.isAdmin === true && userInfo.isRTVAdmin === false ? (
+            {userInfo.name &&
+            userInfo.isAdmin === true &&
+            userInfo.isRTVAdmin === false ? (
               <>
                 <Nav className="justify-content-center">
-                <LinkContainer to="/admin/queue">
+                  <LinkContainer to="/admin/queue">
                     <Nav.Link className="active">Home</Nav.Link>
                   </LinkContainer>
                   <LinkContainer to="/admin/queue/rtv">
@@ -89,7 +70,9 @@ const HeaderComponent = () => {
                   title={userInfo.name + " " + userInfo.lastName}
                   id="collasible-nav-dropdown"
                 >
-                  <NavDropdown.Item href="/admin/users">User List</NavDropdown.Item>
+                  <NavDropdown.Item href="/admin/users">
+                    User List
+                  </NavDropdown.Item>
                   <NavDropdown.Divider />
                   <NavDropdown.Item
                     href="/login"
@@ -99,7 +82,9 @@ const HeaderComponent = () => {
                   </NavDropdown.Item>
                 </NavDropdown>
               </>
-            ) : userInfo.name && userInfo.isAdmin === true && userInfo.isRTVAdmin === true ? (
+            ) : userInfo.name &&
+              userInfo.isAdmin === true &&
+              userInfo.isRTVAdmin === true ? (
               <>
                 <Nav className="justify-content-center">
                   <LinkContainer to="/admin/queue/rtv">
@@ -114,7 +99,9 @@ const HeaderComponent = () => {
                   title={userInfo.name + " " + userInfo.lastName}
                   id="collasible-nav-dropdown"
                 >
-                  <NavDropdown.Item href="/admin/users">User List</NavDropdown.Item>
+                  <NavDropdown.Item href="/admin/users">
+                    User List
+                  </NavDropdown.Item>
                   <NavDropdown.Divider />
                   <NavDropdown.Item
                     href="/login"

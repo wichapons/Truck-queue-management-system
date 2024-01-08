@@ -9,7 +9,7 @@ router.post("/login", userController.loginUser)
 // user routes:
 router.use(verifyAuthToken.verifyIsLoggedIn);
 router.put("/profile", userController.updateUserProfile);
-router.get('/profile/:id', userController.getUserProfile);
+router.get('/profile', userController.getUserProfile);
 
 // admin routes:
 router.use(verifyAuthToken.verifyIsAdmin);

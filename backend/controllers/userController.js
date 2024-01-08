@@ -3,6 +3,7 @@ const Queue = require("../models/QueueModel");
 const { hashPassword, comparePasswords } = require("../utils/hashPassword");
 const generateAuthToken = require("../utils/generateAuthToken");
 let cookieParams = require("../config/cookieParameter");
+const jwt = require("jsonwebtoken");
 
 const getUsers = async (req, res, next) => {
   try {
@@ -168,8 +169,12 @@ const updateUserProfile = async (req, res, next) => {
 
 const getUserProfile = async (req, res, next) => {
   try {
-    const user = await User.findById(req.params.id).orFail();
-    return res.send(user);
+  const token = req.cookies.access_token;
+  const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+  let userId = decoded._id
+
+  const userInfo = await User.findById(userId).select("-_id name lastName isAdmin isRTVAdmin").orFail();
+    return res.send(userInfo);
   } catch (err) {
     next(err);
   }
