@@ -16,16 +16,22 @@ const sendLineNotification = async (req, res, next) => {
     //get data from database
     const queueData = await Queue.findOne({ _id: new ObjectId(queue_id) });
 
-    const supplierInfo = queueData.suppliers.map(supplier => {
+    const supplierInfo = queueData.suppliers.map((supplier) => {
       const formattedSupplierInfo = `${supplier.supplierCode} ${supplier.supplierName}`;
-      return formattedSupplierInfo.length <= 22 ? formattedSupplierInfo : formattedSupplierInfo.slice(0, 24) ;
+      return formattedSupplierInfo.length <= 22
+        ? formattedSupplierInfo
+        : formattedSupplierInfo.slice(0, 24);
     });
-    
-    const message = `เชิญคิวที่ ${queueData.queueNumber}\nผู้ขนส่ง: \n${supplierInfo.join(',\n ')}\nลงของที่ประตู ${queueData.dockingDoorNumber} ค่ะ`;
+
+    const message = `เชิญคิวที่ ${
+      queueData.queueNumber
+    }\nผู้ขนส่ง: \n${supplierInfo.join(",\n ")}\nลงของที่ประตู ${
+      queueData.dockingDoorNumber
+    } ค่ะ`;
 
     //prepare data to send to Line API
     let json_data = {
-      message: message
+      message: message,
     };
 
     let response = await axios({
@@ -70,34 +76,63 @@ const sendLineNotification = async (req, res, next) => {
   }
 };
 
-const getAllQueue = async (req, res, next) => {
-  let productType = req.params.productType;
+const getQueueByUserRole = async (req, res, next) => {
+  const token = req.cookies.access_token;
+  const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+  let userId = decoded._id
+
+  const userInfo = await User.findById(userId).select("adminRole docType").orFail();
+  const adminRole = userInfo.adminRole;
+  const docType = userInfo.docType;
+
   //capitalize first character
-  const capitalizeFirstLetter = (str) => {
-    return str.charAt(0).toUpperCase() + str.slice(1);
-  };
+  // const capitalizeFirstLetter = (str) => {
+  //   return str.charAt(0).toUpperCase() + str.slice(1);
+  // };
 
-  productType = capitalizeFirstLetter(productType);
+  //productType = capitalizeFirstLetter(productType);
 
-  if (!productType) {
-    return res
-      .status(400)
-      .json({ error: "No product type provided in the request" });
+  if (!adminRole) {
+    return res.status(400).json({ error: "No admin role found in database" });
   }
 
-  if (productType === "All") {
+  if (adminRole === "All") {
     let queueData = await Queue.find({ isCheckOut: false }).sort({
       queueNumber: 1,
     });
     res.status(200).json(queueData);
   } else {
     let queueData = await Queue.find({
-      goodsType: productType,
+      goodsType: docType,
       isCheckOut: false,
-    });
+    }).sort({ queueNumber: 1 });
     res.status(200).json(queueData);
   }
-};
+  
+  
+//   if (adminRole === "Checker") {
+//     let docType = ["Consignment", "CRL", "PET 'N ME", "Plaza"];
+//     let queueData = await Queue.find({
+//       goodsType: docType,
+//       isCheckOut: false,
+//     });
+//     res.status(200).json(queueData);
+//   } else if(adminRole === "Credit") {
+//     let docType = ["Credit","Special","Beutrium"]
+//     let queueData = await Queue.find({
+//       goodsType: docType,
+//       isCheckOut: false,
+//     });
+//     res.status(200).json(queueData);
+//   } else if(adminRole === "Data") {
+//     let docType = ["Consignment","CRL"]
+//     let queueData = await Queue.find({
+//       goodsType: docType,
+//       isCheckOut: false,
+//     });
+//     res.status(200).json(queueData);
+// };
+}
 
 const createNewQueue = async (req, res, next) => {
   try {
@@ -145,19 +180,28 @@ const createNewQueue = async (req, res, next) => {
     */
 
     //auto-mataching docking door
-    if (goodstype === "Consignment" || goodstype === "CRL" || goodstype === "PET 'N ME"|| goodstype === "Plaza") {
+    if (
+      goodstype === "Consignment" ||
+      goodstype === "CRL" ||
+      goodstype === "PET 'N ME" ||
+      goodstype === "Plaza"
+    ) {
       queue.dockingDoorNumber = 50;
-    } else if (goodstype === "Beautrium"|| goodstype === "Credit"|| goodstype === "Special"){
+    } else if (
+      goodstype === "Beautrium" ||
+      goodstype === "Credit" ||
+      goodstype === "Special"
+    ) {
       queue.dockingDoorNumber = 58;
-    }else{
+    } else {
       res.json({
         message: "Goods type is not valid",
         queueId: queue._id,
         suppliers: queue.suppliers,
         goodsType: queue.goodsType,
         queueNumber: queue.queueNumber,
-      })
-      next(err)
+      });
+      next(err);
       return;
     }
 
@@ -331,7 +375,6 @@ const getQueueHistory = async (req, res, next) => {
     startDateTime.setUTCHours(startDateTime.getUTCHours() - 7);
     endDateTime.setUTCHours(endDateTime.getUTCHours() - 7);
 
-
     let queueData = await Queue.find({
       isCheckOut: true,
       //isRTV: false,
@@ -347,7 +390,7 @@ const getQueueHistory = async (req, res, next) => {
 
 module.exports = {
   sendLineNotification: sendLineNotification,
-  getAllQueue: getAllQueue,
+  getQueueByUserRole: getQueueByUserRole,
   createNewQueue: createNewQueue,
   checkIn: checkIn,
   updateDockingNumber: updateDockingNumber,

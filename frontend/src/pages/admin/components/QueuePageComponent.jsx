@@ -5,7 +5,6 @@ import axios from "axios";
 import { ColorRing } from "react-loader-spinner";
 import Spinner from "react-bootstrap/Spinner";
 
-
 const QueuePageComponent = ({ getQueue }) => {
   let countdownTime = 180;
   const [queues, setQueues] = useState([]);
@@ -22,18 +21,18 @@ const QueuePageComponent = ({ getQueue }) => {
       try {
         //setLoading(true);
         // Get productType from user info
-        const tokenResponse = await axios.get("/api/get-token");
+        // const tokenResponse = await axios.get("/api/get-token");
 
-        if (!tokenResponse.data) {
-          alert("Cannot get access token");
-          return;
-        }
-
-        setProductType(tokenResponse.data.productType);
+        // if (!tokenResponse.data) {
+        //   alert("Cannot get access token");
+        //   return;
+        // }
+        // setProductType(tokenResponse.data.productType);
+        // console.log(tokenResponse.data.productType);
         
 
         // Fetch data from DB based on product type
-        const queues = await getQueue(tokenResponse.data.productType);
+        const queues = await getQueue();
 
         // Sort by queue number ASC
         // const sortedQueues = [...queues].sort(

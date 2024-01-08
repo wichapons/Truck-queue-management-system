@@ -19,7 +19,7 @@ router.use(verifyAuthToken.verifyIsAdmin)
 //GET REQUEST
 router.get("/rtv",queueController.getRTVQueue);
 router.get("/history",queueController.getQueueHistory);
-router.get("/:productType", queueController.getAllQueue);
+router.get("/", queueController.getQueueByUserRole);
 
 
 //POST REQUEST
