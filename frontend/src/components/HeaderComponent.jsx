@@ -6,9 +6,11 @@ import { LinkContainer } from "react-router-bootstrap";
 import { logout } from "../redux/actions/userActions";
 import { useEffect, useState } from "react";
 import axios from "axios";
+import { useDispatch, useSelector } from "react-redux";
 
 const HeaderComponent = () => {
   const [userInfo, setUserInfo] = useState({});
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const getUserInfo = async () => {
