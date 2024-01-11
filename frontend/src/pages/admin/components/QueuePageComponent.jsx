@@ -15,21 +15,34 @@ const QueuePageComponent = ({ getQueue }) => {
   const [lineNotiLoadingStates, setLineNotiLoadingStates] = useState({});
   const [loadingStates, setLoadingStates] = useState({});
   const [countdown, setCountdown] = useState(countdownTime);
+  const [showDeleteButton, setShowDeleteButton] = useState(false);
+  const [deleteLoadingStates, setDeleteLoadingStates] = useState({});
+
+  useEffect(() => {
+    const getUserInfo = async () => {
+      const tokenResponse = await axios.get("/api/users/profile");
+      if (tokenResponse.data) {
+        const userInfo = tokenResponse.data;
+        setShowDeleteButton(userInfo.showDeleteButton);
+
+        //if userInfo in "High level and Data setshowButton to true"
+        if (["High level", "Data"].includes(userInfo)) {
+          setShowDeleteButton(true);
+        }
+      } else {
+        alert("Cannot get access token");
+        return;
+      }
+    };
+
+    getUserInfo();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         //setLoading(true);
-        // Get productType from user info
-        // const tokenResponse = await axios.get("/api/get-token");
-
-        // if (!tokenResponse.data) {
-        //   alert("Cannot get access token");
-        //   return;
-        // }
-        // setProductType(tokenResponse.data.productType);
-        // console.log(tokenResponse.data.productType);
-        
+        //Get user info
 
         // Fetch data from DB based on product type
         const queues = await getQueue();
@@ -42,7 +55,7 @@ const QueuePageComponent = ({ getQueue }) => {
         setQueues(queues);
         setLoading(false);
       } catch (error) {
-        if(error.response.status === 401){
+        if (error.response.status === 401) {
           //redirect to login page
           window.location.href = "/login";
         }
@@ -54,22 +67,24 @@ const QueuePageComponent = ({ getQueue }) => {
   useEffect(() => {
     const intervalId = setInterval(() => {
       // Decrease the countdown
-      setCountdown((prevCountdown) => (prevCountdown > 0 ? prevCountdown - 1 : countdownTime));
+      setCountdown((prevCountdown) =>
+        prevCountdown > 0 ? prevCountdown - 1 : countdownTime
+      );
     }, 1000);
 
     // Clear the interval and trigger re-render when countdown reaches 0
     if (countdown === 0) {
       clearInterval(intervalId);
       setCountdown(countdownTime); // Reset countdown
-      setLoading(true)
+      setLoading(true);
       setRefresh(!refresh);
     }
 
     return () => clearInterval(intervalId);
   }, [countdown]);
 
-   // Function to refresh the page
-   const refreshPage = () => {
+  // Function to refresh the page
+  const refreshPage = () => {
     setLoading(true);
     setRefresh(!refresh);
     setCountdown(countdownTime); // Reset countdown
@@ -147,6 +162,19 @@ const QueuePageComponent = ({ getQueue }) => {
     }
   };
 
+  const deleteQueue = async (queueID) => {
+    if (window.confirm("ยืนยันการลบคิว?")) {
+      setDeleteLoadingStates((prevState) => ({ ...prevState, [queueID]: true }));
+      const response = await axios.put(`/api/queue/delete/${queueID}`);
+      // Set the specific button to be disabled
+      setDeleteLoadingStates((prevState) => ({ ...prevState, [queueID]: false }));
+      setRefresh(!refresh);
+      return response.data;
+    } else {
+      return "cancel";
+    }
+  }
+
   return (
     <Row className="m-5">
       {/* <Col md={2}>
@@ -161,11 +189,17 @@ const QueuePageComponent = ({ getQueue }) => {
         </h2>
 
         <div>
-      <p>Auto-refresh in {countdown} seconds <Button onClick={refreshPage} className="btn-sm btn-success"><i className="bi bi-arrow-clockwise"></i></Button></p>    
-    </div>
+          <p>
+            Auto-refresh in {countdown} seconds{" "}
+            <Button onClick={refreshPage} className="btn-sm btn-success">
+              <i className="bi bi-arrow-clockwise"></i>
+            </Button>
+          </p>
+        </div>
         <Table striped bordered hover responsive>
           <thead>
             <tr style={{ textAlign: "center" }}>
+              {showDeleteButton ? <th>ลบคิว</th> : ""}
               <th>คิว</th>
               <th>รหัสผู้ขนส่ง</th>
               <th>ชื่อผู้ขนส่ง</th>
@@ -179,136 +213,108 @@ const QueuePageComponent = ({ getQueue }) => {
               <th>Check Out</th>
             </tr>
           </thead>
-          {!loading ? ( queues.length > 0 ? (<tbody style={{ textAlign: "center" }}>
-              {queues.map((queue, idx) => {
-                idx++;
-                return !queue.isCheckOut ? (
-                  <tr key={idx}>
-                    <td>{queue.queueNumber}</td>
-                    <td>
-                      {queue.suppliers.map((supplier, index2) => {
-                        index2 = index2 + 20000;
-                        return (
-                          <div key={index2}>
-                            {supplier.supplierCode}
-                            <br />
-                          </div>
-                        );
-                      })}
-                    </td>
-                    <td>
-                      {queue.suppliers.map((supplier, index3) => {
-                        index3 = index3 + 30000;
-                        return (
-                          <div key={index3}>
-                            {supplier.supplierName}
-                            <br />
-                          </div>
-                        );
-                      })}
-                    </td>
-                    <td
-                      style={{ textAlign: "center", justifyContent: "center" }}
-                    >
-                      {queue.goodsType}
-                    </td>
-
-                    <td>
-                    {queue.createdAt
-                      ? new Date(queue.createdAt).toLocaleString("en-GB", {
-                          timeZone: "Asia/Bangkok",
-                          hour12: false,
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        }) + " น."
-                      : "N/A"}
-                  </td>
-
-                    <td style={{ textAlign: "center" }}>
-                      <Button
-                        className="btn-sm"
-                        variant="warning"
-                        onClick={() => assignDockingDoor(queue._id)}
-                      >
-                        <i className="bi bi-pencil-square"></i>
-                      </Button>
-                    </td>
-
+          {!loading ? (
+            queues.length > 0 ? (
+              <tbody style={{ textAlign: "center" }}>
+                {queues.map((queue, idx) => {
+                  idx++;
+                  return !queue.isCheckOut ? (
+                    <tr key={idx}>
+                     {/* DELETE BUTTON */}
+                     {showDeleteButton ? (<td>
+                        <button onClick={() => deleteQueue(queue._id)} className="btn btn-sm btn-outline-dark">         
+                          {deleteLoadingStates[queue._id] ? (
+                              <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                              />
+                            ) : (
+                              <i className="bi bi-trash"></i>
+                            )}
+                          
+                        </button>
+                      </td>):("")}
                     
-
-                    <td style={{ textAlign: "center" }}>
-                      {queue.dockingDoorNumber
-                        ? queue.dockingDoorNumber
-                        : "N/A"}
-                    </td>
-
-                    
-
-                    <td style={{ textAlign: "center" }}>
-                      <Button
-                        variant="primary"
-                        className="btn-sm"
-                        //style={{ width: "30%" }}
-                        onClick={() =>
-                          sendLineNotification(
-                            queue._id,
-                            queue.dockingDoorNumber
-                          )
-                        }
-                        disabled={lineNotiLoadingStates[queue._id]}
+                      {/* QUEUE NUMBER */}
+                      <td>{queue.queueNumber}</td>
+                      {/* SUP ID */}
+                      <td>
+                        {queue.suppliers.map((supplier, index2) => {
+                          index2 = index2 + 20000;
+                          return (
+                            <div key={index2}>
+                              {supplier.supplierCode}
+                              <br />
+                            </div>
+                          );
+                        })}
+                      </td>
+                      {/* SUP NAME */}
+                      <td>
+                        {queue.suppliers.map((supplier, index3) => {
+                          index3 = index3 + 30000;
+                          return (
+                            <div key={index3}>
+                              {supplier.supplierName}
+                              <br />
+                            </div>
+                          );
+                        })}
+                      </td>
+                      {/* DOC TYPE */}
+                      <td
+                        style={{
+                          textAlign: "center",
+                          justifyContent: "center",
+                        }}
                       >
-                        {lineNotiLoadingStates[queue._id] ? (
-                          <Spinner
-                            as="span"
-                            animation="border"
-                            size="sm"
-                            role="status"
-                            aria-hidden="true"
-                          />
-                        ) : (
-                          <i className="bi bi-send"></i>
-                        )}
-                      </Button>
-                    </td>
-
-
-                    <td>
-                      {queue.queueCalledTime
-                        ? new Date(queue.queueCalledTime).toLocaleString(
-                            "en-GB",
-                            {
+                        {queue.goodsType}
+                      </td>
+                        {/* CREATE AT */}
+                      <td>
+                        {queue.createdAt
+                          ? new Date(queue.createdAt).toLocaleString("en-GB", {
                               timeZone: "Asia/Bangkok",
                               hour12: false,
                               hour: "2-digit",
                               minute: "2-digit",
-                            }
-                          ) + " น."
-                        : "N/A"}
-                    </td>
-                    <td>
-                      {queue.isCheckin ? (
-                        // CHECK IN TIME
-                        queue.checkInTime ? (
-                          new Date(queue.checkInTime).toLocaleString("en-GB", {
-                            timeZone: "Asia/Bangkok",
-                            hour12: false,
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          }) + " น."
-                        ) : (
-                          "N/A"
-                        )
-                      ) : (
-                        // CHECK IN BUTTON
+                            }) + " น."
+                          : "N/A"}
+                      </td>
+
+                      <td style={{ textAlign: "center" }}>
                         <Button
-                          variant="success"
                           className="btn-sm"
-                          onClick={() =>
-                            closeQueue(queue._id, queue.dockingDoorNumber)
-                          }
-                          disabled={queue.isCheckin || loadingStates[queue._id]}
+                          variant="warning"
+                          onClick={() => assignDockingDoor(queue._id)}
                         >
-                          {loadingStates[queue._id] ? (
+                          <i className="bi bi-pencil-square"></i>
+                        </Button>
+                      </td>
+
+                      <td style={{ textAlign: "center" }}>
+                        {queue.dockingDoorNumber
+                          ? queue.dockingDoorNumber
+                          : "N/A"}
+                      </td>
+
+                      <td style={{ textAlign: "center" }}>
+                        <Button
+                          variant="primary"
+                          className="btn-sm"
+                          //style={{ width: "30%" }}
+                          onClick={() =>
+                            sendLineNotification(
+                              queue._id,
+                              queue.dockingDoorNumber
+                            )
+                          }
+                          disabled={lineNotiLoadingStates[queue._id]}
+                        >
+                          {lineNotiLoadingStates[queue._id] ? (
                             <Spinner
                               as="span"
                               animation="border"
@@ -317,18 +323,14 @@ const QueuePageComponent = ({ getQueue }) => {
                               aria-hidden="true"
                             />
                           ) : (
-                            "Check In"
+                            <i className="bi bi-send"></i>
                           )}
-                          {/* <i className="bi bi-check-circle"></i> */}
                         </Button>
-                      )}
-                    </td>
+                      </td>
 
-                    <td>
-                      {queue.isCheckOut
-                        ? // CHECK OUT TIME
-                          queue.checkOutTime
-                          ? new Date(queue.checkOutTime).toLocaleString(
+                      <td>
+                        {queue.queueCalledTime
+                          ? new Date(queue.queueCalledTime).toLocaleString(
                               "en-GB",
                               {
                                 timeZone: "Asia/Bangkok",
@@ -336,49 +338,112 @@ const QueuePageComponent = ({ getQueue }) => {
                                 hour: "2-digit",
                                 minute: "2-digit",
                               }
-                            )
-                          : // Render nothing if checkOutTime is not available
-                            ""
-                        : // CHECK OUT BUTTON
-                          queue.isCheckin && (
-                            <Button
-                              variant="danger"
-                              className="btn-sm"
-                              onClick={() =>
-                                checkOut(queue._id, queue.isCheckin)
+                            ) + " น."
+                          : "N/A"}
+                      </td>
+                      <td>
+                        {queue.isCheckin ? (
+                          // CHECK IN TIME
+                          queue.checkInTime ? (
+                            new Date(queue.checkInTime).toLocaleString(
+                              "en-GB",
+                              {
+                                timeZone: "Asia/Bangkok",
+                                hour12: false,
+                                hour: "2-digit",
+                                minute: "2-digit",
                               }
-                              disabled={
-                                queue.isCheckOut ||
-                                !queue.isCheckin ||
-                                loadingStates[queue._id]
-                              }
-                            >
-                              {loadingStates[queue._id] ? (
-                                <Spinner
-                                  as="span"
-                                  animation="border"
-                                  size="sm"
-                                  role="status"
-                                  aria-hidden="true"
-                                />
-                              ) : (
-                                "Check Out"
-                              )}
-                              {/* <i className="bi bi-door-closed"></i> */}
-                            </Button>
-                          )}
-                    </td>
-                  </tr>
-                ) : (
-                  ""
-                );
-              })}
-            </tbody>): (<tbody style={{ textAlign: "center" }}>
+                            ) + " น."
+                          ) : (
+                            "N/A"
+                          )
+                        ) : (
+                          // CHECK IN BUTTON
+                          <Button
+                            variant="success"
+                            className="btn-sm"
+                            onClick={() =>
+                              closeQueue(queue._id, queue.dockingDoorNumber)
+                            }
+                            disabled={
+                              queue.isCheckin || loadingStates[queue._id]
+                            }
+                          >
+                            {loadingStates[queue._id] ? (
+                              <Spinner
+                                as="span"
+                                animation="border"
+                                size="sm"
+                                role="status"
+                                aria-hidden="true"
+                              />
+                            ) : (
+                              "Check In"
+                            )}
+                            {/* <i className="bi bi-check-circle"></i> */}
+                          </Button>
+                        )}
+                      </td>
+
+                      <td>
+                        {queue.isCheckOut
+                          ? // CHECK OUT TIME
+                            queue.checkOutTime
+                            ? new Date(queue.checkOutTime).toLocaleString(
+                                "en-GB",
+                                {
+                                  timeZone: "Asia/Bangkok",
+                                  hour12: false,
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )
+                            : // Render nothing if checkOutTime is not available
+                              ""
+                          : // CHECK OUT BUTTON
+                            queue.isCheckin && (
+                              <Button
+                                variant="danger"
+                                className="btn-sm"
+                                onClick={() =>
+                                  checkOut(queue._id, queue.isCheckin)
+                                }
+                                disabled={
+                                  queue.isCheckOut ||
+                                  !queue.isCheckin ||
+                                  loadingStates[queue._id]
+                                }
+                              >
+                                {loadingStates[queue._id] ? (
+                                  <Spinner
+                                    as="span"
+                                    animation="border"
+                                    size="sm"
+                                    role="status"
+                                    aria-hidden="true"
+                                  />
+                                ) : (
+                                  "Check Out"
+                                )}
+                                {/* <i className="bi bi-door-closed"></i> */}
+                              </Button>
+                            )}
+                      </td>
+                     
+                     
+                    </tr>
+                  ) : (
+                    ""
+                  );
+                })}
+              </tbody>
+            ) : (
+              <tbody style={{ textAlign: "center" }}>
                 <tr>
                   <td colSpan="11">No more queue! </td>
                 </tr>
-              </tbody>)
-            
+              </tbody>
+            )
           ) : (
             ""
           )}

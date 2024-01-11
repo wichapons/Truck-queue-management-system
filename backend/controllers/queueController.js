@@ -97,7 +97,7 @@ const getQueueByUserRole = async (req, res, next) => {
   }
 
   if (adminRole === "All") {
-    let queueData = await Queue.find({ isCheckOut: false }).sort({
+    let queueData = await Queue.find({ isCheckOut: false, isDelete: false }).sort({
       queueNumber: 1,
     });
     res.status(200).json(queueData);
@@ -105,6 +105,7 @@ const getQueueByUserRole = async (req, res, next) => {
     let queueData = await Queue.find({
       goodsType: docType,
       isCheckOut: false,
+      isDelete: false,
     }).sort({ queueNumber: 1 });
     res.status(200).json(queueData);
   }
@@ -388,6 +389,29 @@ const getQueueHistory = async (req, res, next) => {
   }
 };
 
+const deleteQueue = async (req, res, next) => {
+  try {
+    const queueID = req.params.id;
+    // decode token to get user id
+    const token = req.cookies.access_token;
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    req.user = decoded;
+
+    //update field isDelete to true
+    await Queue.findByIdAndUpdate(queueID, { isDelete: true,queueDeleteBy: req.user.name, queueDeleteTime: new Date() });
+    
+    res.status(200).json({
+      message: "Queue deleted successfully",
+    });
+  } catch (err) {
+    //delete failed
+    res.status(500).json({
+      message: "Failed to delete queue",
+    })
+    next(err);
+  }
+}
+
 module.exports = {
   sendLineNotification: sendLineNotification,
   getQueueByUserRole: getQueueByUserRole,
@@ -399,4 +423,5 @@ module.exports = {
   checkInRTV: checkInRTV,
   checkOutRTV: checkOutRTV,
   getQueueHistory: getQueueHistory,
+  deleteQueue:deleteQueue
 };

@@ -16,7 +16,7 @@ const getUsers = async (req, res, next) => {
 
 const registerUser = async (req, res, next) => {
   try {
-    const { name, lastName, password,phoneNumber,isAdmin,isGRAdmin, productType,isRTVAdmin,adminRole,docType } = req.body;
+    const { name, lastName, password,phoneNumber,isAdmin,isGRAdmin, productType,isRTVAdmin,adminRole,docType,showDeleteButton } = req.body;
     let { email } = req.body;
     if (!(name && lastName && email && password)) {
       return res.status(400).send("All inputs are required");
@@ -40,7 +40,8 @@ const registerUser = async (req, res, next) => {
         productType,
         isRTVAdmin,
         adminRole,
-        docType
+        docType,
+        showDeleteButton
       });
       res
         .cookie(
@@ -91,7 +92,7 @@ const loginUser = async (req, res, next) => {
       if (doNotLogout) {
         cookieParams = { ...cookieParams, maxAge: 1000 * 60 * 60 * 24 * 7 }; // set maxAge to 7 days 
       }else{
-        cookieParams = { ...cookieParams, maxAge: 1000 * 60 * 60 * 24}; // set maxAge to 24 hr
+        cookieParams = { ...cookieParams, maxAge: 1000 * 60 * 60 * 15}; // set maxAge to 15 hr
       }
       return res
         .cookie(
@@ -173,8 +174,8 @@ const getUserProfile = async (req, res, next) => {
   const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
   let userId = decoded._id
 
-  const userInfo = await User.findById(userId).select("-_id name lastName isAdmin isRTVAdmin").orFail();
-    return res.send(userInfo);
+  const userInfo = await User.findById(userId).select("-_id name lastName isAdmin isRTVAdmin adminRole showDeleteButton").orFail();
+    return res.status(200).send(userInfo);
   } catch (err) {
     next(err);
   }

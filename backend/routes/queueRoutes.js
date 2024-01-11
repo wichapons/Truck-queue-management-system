@@ -34,6 +34,8 @@ router.put("/checkout/:id",queueController.checkOut);
 router.put("/rtv/checkin/:id",queueController.checkInRTV);
 router.put("/rtv/checkout/:id",queueController.checkOutRTV);
 
+router.put("/delete/:id",queueController.deleteQueue);
+
 //router.get("/analysis/:date", orderController.getOrderForAnalysis);
 
 

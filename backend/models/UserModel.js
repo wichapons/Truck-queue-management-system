@@ -47,10 +47,15 @@ const userSchema = mongoose.Schema(
       require: true,
       default: "null",
     },
-    docType:{
-        type: [String],
-        default: ["null"]
-    }
+    docType: {
+      type: [String],
+      default: ["null"],
+    },
+    showDeleteButton: {
+      type: Boolean,
+      default: false,
+      require: true,
+    },
   },
   {
     timestamps: true,
